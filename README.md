@@ -1,1 +1,1 @@
-# IoT-Technology-for-Beekeeping
+# IoT technology for Beekeeping
