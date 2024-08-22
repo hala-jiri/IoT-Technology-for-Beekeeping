@@ -1,0 +1,11 @@
+{    "apiaryMeasurement": {
+        "apiaryId": 1,
+        "temperatureOut": 22.50
+    },
+    "hivesMeasurements": [
+        {
+            "hiveId": 2,
+            "weight": 75.23
+        }
+    ]
+}
