@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "ApiaryDataCollector.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "..\\ApiaryDataWeb\\ApiaryDataWeb.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

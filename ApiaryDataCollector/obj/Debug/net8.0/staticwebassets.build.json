@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "L2QG4dxjlXACJ+Eo2ve6/mgUb7634MTYxGC2+finbSk=",
+  "Source": "ApiaryDataCollector",
+  "BasePath": "_content/ApiaryDataCollector",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

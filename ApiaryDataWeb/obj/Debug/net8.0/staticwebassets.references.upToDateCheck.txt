@@ -1,0 +1,5 @@
+C:\GIT\IoT-Technology-for-Beekeeping\ApiaryDataCollector\obj\Debug\net8.0\staticwebassets.build.json
+C:\GIT\IoT-Technology-for-Beekeeping\ApiaryDataCollector\obj\Debug\net8.0\staticwebassets.build.json
+C:\GIT\IoT-Technology-for-Beekeeping\ApiaryDataCollector\obj\Debug\net8.0\staticwebassets.build.json
+C:\GIT\IoT-Technology-for-Beekeeping\ApiaryDataCollector\obj\Debug\net8.0\staticwebassets.build.json
+C:\GIT\IoT-Technology-for-Beekeeping\ApiaryDataCollector\obj\Debug\net8.0\staticwebassets.build.json
