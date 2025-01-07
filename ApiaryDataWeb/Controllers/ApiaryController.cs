@@ -2,21 +2,37 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 
 public class ApiaryController : Controller
 {
-    private readonly HttpClient _httpClient;
+    private readonly AppDbContext _context;
 
-    public ApiaryController(HttpClient httpClient)
+    public ApiaryController(AppDbContext context)
     {
-        _httpClient = httpClient;
+        _context = context;
     }
 
     public async Task<IActionResult> Index()
     {
-        var response = await _httpClient.GetStringAsync("https://localhost:5001/api/Apiary");
-        var apiaries = JsonConvert.DeserializeObject<List<Apiary>>(response);
-
+        var apiaries = await _context.Apiaries.Include(a=>a.Hives).ToListAsync();
         return View(apiaries);
+    }
+
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(Apiary apiary)
+    {
+        if (ModelState.IsValid)
+        {
+            _context.Apiaries.Add(apiary);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        return View(apiary);
     }
 }

@@ -1,0 +1,48 @@
+﻿@{
+    int? countOfApiaries = ViewData["CountOfApiaries"] as int?;
+    int? countOfHives = ViewData["CountOfHives"] as int?;
+    int? countOfApiaryMeasurements = ViewData["CountOfApiaryMeasurements"] as int?;
+    int? countOfHiveMeasurements = ViewData["CountOfHiveMeasurements"] as int?;
+    string timeOfSeeding = ViewData["TimeOfSeeding"] as string;
+}
+
+<h1>Seed Database</h1>
+
+<div class="section">
+    <span>Apiaries: </span>
+    <span class="count">@(countOfApiaries.HasValue ? countOfApiaries.ToString() : "Data not available")</span>
+</div>
+
+<div class="section">
+    <span>Hives: </span>
+    <span class="count">@(countOfHives.HasValue ? countOfHives.ToString() : "Data not available")</span>
+</div>
+
+<div class="section">
+    <span>Hives Measurements: </span>
+    <span class="count">@(countOfHiveMeasurements.HasValue ? countOfHiveMeasurements.ToString() : "Data not available")</span>
+</div>
+
+<div class="section">
+    <span>Apiaries Measurements: </span>
+    <span class="count">@(countOfApiaryMeasurements.HasValue ? countOfApiaryMeasurements.ToString() : "Data not available")</span>
+</div>
+
+<div class="section">
+    <span>Average hives per apiary: </span>
+    <span class="count">
+        @if (countOfApiaries.HasValue && countOfApiaries != 0)
+        {
+            @(countOfHives.GetValueOrDefault() / (double)countOfApiaries.GetValueOrDefault())
+        }
+        else
+        {
+            <span>Data not available</span>
+        }
+    </span>
+</div>
+
+<div class="section">
+    <span>Time of processing: </span>
+    <span class="count">@timeOfSeeding sec</span>
+</div>

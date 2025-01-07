@@ -5,7 +5,7 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/Apiary": {
+    "/api/Apiary/summary": {
       "get": {
         "tags": [
           "Apiary"
@@ -15,7 +15,93 @@
             "description": "OK"
           }
         }
+      }
+    },
+    "/api/Apiary/{id}": {
+      "get": {
+        "tags": [
+          "Apiary"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       },
+      "put": {
+        "tags": [
+          "Apiary"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiaryUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiaryUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiaryUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Apiary"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Apiary": {
       "post": {
         "tags": [
           "Apiary"
@@ -24,17 +110,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Apiary"
+                "$ref": "#/components/schemas/ApiaryCreateDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Apiary"
+                "$ref": "#/components/schemas/ApiaryCreateDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Apiary"
+                "$ref": "#/components/schemas/ApiaryCreateDto"
               }
             }
           }
@@ -46,12 +132,143 @@
         }
       }
     },
-    "/WeatherForecast": {
+    "/api/Hive": {
+      "post": {
+        "tags": [
+          "Hive"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HiveCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HiveCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/HiveCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Hive/{id}": {
+      "put": {
+        "tags": [
+          "Hive"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HiveUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HiveUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/HiveUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
       "get": {
         "tags": [
-          "WeatherForecast"
+          "Hive"
         ],
-        "operationId": "GetWeatherForecast",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/HiveSummaryDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HiveSummaryDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HiveSummaryDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Hive"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Hive/summary": {
+      "get": {
+        "tags": [
+          "Hive"
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -60,7 +277,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
+                    "$ref": "#/components/schemas/HiveSummaryDto"
                   }
                 }
               },
@@ -68,7 +285,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
+                    "$ref": "#/components/schemas/HiveSummaryDto"
                   }
                 }
               },
@@ -76,7 +293,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
+                    "$ref": "#/components/schemas/HiveSummaryDto"
                   }
                 }
               }
@@ -84,11 +301,55 @@
           }
         }
       }
+    },
+    "/api/Measurement": {
+      "post": {
+        "tags": [
+          "Measurement"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiaryDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiaryDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiaryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
-      "Apiary": {
+      "ApiaryCreateDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiaryDto": {
         "type": "object",
         "properties": {
           "apiaryNumber": {
@@ -97,62 +358,58 @@
           },
           "reportDate": {
             "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "format": "date-time"
+          },
+          "humidity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "temperature": {
+            "type": "number",
+            "format": "double"
+          },
+          "lightIntensity": {
+            "type": "integer",
+            "format": "int32"
           },
           "hives": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Hive"
+              "$ref": "#/components/schemas/HiveDto"
             },
-            "nullable": true
-          },
-          "humidity": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "temperature": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "lightIntensity": {
-            "type": "integer",
-            "format": "int32",
             "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "Hive": {
+      "ApiaryUpdateDto": {
         "type": "object",
         "properties": {
-          "hiveNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "sensorData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SensorData"
-            },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "HiveCreateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
             "nullable": true
           },
           "apiaryNumber": {
             "type": "integer",
             "format": "int32"
-          },
-          "apiary": {
-            "$ref": "#/components/schemas/Apiary"
           }
         },
         "additionalProperties": false
       },
-      "SensorData": {
+      "HiveDto": {
         "type": "object",
         "properties": {
-          "id": {
+          "hiveNumber": {
             "type": "integer",
             "format": "int32"
           },
@@ -167,34 +424,39 @@
           "humidity": {
             "type": "integer",
             "format": "int32"
-          },
-          "hiveNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hive": {
-            "$ref": "#/components/schemas/Hive"
           }
         },
         "additionalProperties": false
       },
-      "WeatherForecast": {
+      "HiveSummaryDto": {
+        "required": [
+          "apiaryName"
+        ],
         "type": "object",
         "properties": {
-          "date": {
-            "type": "string",
-            "format": "date"
-          },
-          "temperatureC": {
+          "hiveNumber": {
             "type": "integer",
             "format": "int32"
           },
-          "temperatureF": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
+          "name": {
+            "type": "string",
+            "nullable": true
           },
-          "summary": {
+          "apiaryNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "apiaryName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "HiveUpdateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
             "type": "string",
             "nullable": true
           }

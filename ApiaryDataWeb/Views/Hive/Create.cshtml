@@ -1,0 +1,8 @@
+﻿@model Hive
+
+<h1>Add Hive</h1>
+<form method="post">
+    <input type="hidden" asp-for="ApiaryNumber" value="@ViewBag.ApiaryNumber" />
+    <label>Hive Number: <input type="number" asp-for="HiveNumber" /></label>
+    <button type="submit">Add</button>
+</form>

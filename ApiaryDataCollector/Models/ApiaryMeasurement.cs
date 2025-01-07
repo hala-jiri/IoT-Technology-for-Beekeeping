@@ -12,7 +12,7 @@ namespace ApiaryDataCollector.Models
         public DateTime MeasurementDate { get; set; } // Datum a čas měření
 
         public int Humidity { get; set; } // Vlhkost prostředí
-        public int Temperature { get; set; } // Teplota prostředí
+        public double Temperature { get; set; } // Teplota prostředí
         public int LightIntensity { get; set; } // Světelná intenzita
     }
 }

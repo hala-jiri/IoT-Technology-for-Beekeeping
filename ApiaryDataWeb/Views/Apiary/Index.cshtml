@@ -1,3 +1,26 @@
-﻿@model List<Apiary>
+﻿@model IEnumerable<Apiary>
 
-<h2>Seznam Včelínů</h2>
+<h1>Apiaries</h1>
+<a href="/Apiary/Create">Add Apiary</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>Apiary Name</th>
+            <th>Number of Hives</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var apiary in Model)
+        {
+            <tr>
+                <td>@apiary.Name</td>
+                <td>@apiary.Hives.Count()</td>
+                <td>
+                    <a href="/Hive/Index?apiaryId=@apiary.ApiaryNumber">View Hives</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

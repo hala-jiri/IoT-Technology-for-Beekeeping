@@ -1,0 +1,118 @@
+﻿@model IEnumerable<ApiaryDataCollector.Models.HiveMeasurement>
+
+
+@{
+    var apiaries = (IEnumerable<Apiary>)ViewData["Apiaries"];
+    var selectedApiaryId = ViewData["SelectedApiaryId"] as int?;
+    var hives = (IEnumerable<Hive>)ViewData["Hives"];
+    var selectedHiveId = ViewData["SelectedHiveId"] as int?;
+
+    // Získání hodnot pro graf z modelu
+    var measurements = Model.ToList();
+    var weights = measurements.Select(m => m.Weight).ToArray(); // Váhy
+    var labels = measurements.Select(m => m.MeasurementDate.ToString("yyyy-MM-dd HH:mm")).ToArray(); // Datum a čas
+}
+
+<h1>Hive Measurements</h1>
+
+<!-- Filtr -->
+<form method="get" action="/HiveMeasurement/Index">
+    <div>
+        <label for="apiary">Apiary:</label>
+        <select id="apiary" name="apiaryId" onchange="this.form.submit()">
+            <option value="">-- Select Apiary --</option>
+            @foreach (var apiary in apiaries)
+            {
+                <option value="@apiary.ApiaryNumber" selected="@(apiary.ApiaryNumber == selectedApiaryId)">
+                    @apiary.Name
+                </option>
+            }
+        </select>
+    </div>
+
+    <div>
+        <label for="hive">Hive:</label>
+        <select id="hive" name="hiveId" onchange="this.form.submit()">
+            <option value="">-- Select Hive --</option>
+            @foreach (var hive in hives)
+            {
+                <option value="@hive.HiveNumber" selected=@(hive.HiveNumber == selectedHiveId ? "selected" : "")>
+                   @hive.HiveNumber
+                </option>
+            }
+        </select>
+    </div>
+</form>
+<!-- Místo pro graf -->
+<canvas id="weightChart" width="400" height="200"></canvas>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('weightChart').getContext('2d');
+    var weightChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(Json.Serialize(labels)), // Dynamicky načtené labely (datum/čas)
+            datasets: [{
+                label: 'Weight (kg)', // Popis pro váhu
+                data: @Html.Raw(Json.Serialize(weights)), // Dynamicky načtená data pro váhu
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    min: Math.min(...@Html.Raw(Json.Serialize(weights))) - 1, // Automatické nastavení minima
+                    max: Math.max(...@Html.Raw(Json.Serialize(weights))) + 1, // Automatické nastavení maxima
+                    title: {
+                        display: true,
+                        text: 'Weight (kg)' // Název osy Y (váha)
+                    },
+                    ticks: {
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date and Time' // Název osy X (datum a čas)
+                    },
+                    ticks: {
+                        maxRotation: 45, // Rotace pro lepší čitelnost datumu
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<!-- Tabulka -->
+<table>
+    <thead>
+        <tr>
+            <th>Hive Number</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Weight (kg)</th>
+            <th>Temperature (°C)</th>
+            <th>Humidity (%)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var measurement in Model)
+        {
+            <tr>
+                <td>Hive #@measurement.HiveNumber</td>
+                <td>@measurement.MeasurementDate.ToString("yyyy-MM-dd")</td>
+                <td>@measurement.MeasurementDate.ToString("HH:mm")</td>
+                <td>@measurement.Weight</td>
+                <td>@measurement.Temperature</td>
+                <td>@measurement.Humidity</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ApiaryDataCollector")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a248757240c12d31cef6a47c225c5d92bc54e7ae")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a4d602401ac173a7acfd2607bae164e323385d23")]
 [assembly: System.Reflection.AssemblyProductAttribute("ApiaryDataCollector")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ApiaryDataCollector")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

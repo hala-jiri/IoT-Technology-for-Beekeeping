@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ApiaryDataWeb")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c0de230620d560b0333f1d60df99782d2c55e426")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a4d602401ac173a7acfd2607bae164e323385d23")]
 [assembly: System.Reflection.AssemblyProductAttribute("ApiaryDataWeb")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ApiaryDataWeb")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
