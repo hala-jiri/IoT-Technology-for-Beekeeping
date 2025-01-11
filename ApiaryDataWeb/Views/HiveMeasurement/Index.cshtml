@@ -1,16 +1,16 @@
 ﻿@model IEnumerable<ApiaryDataCollector.Models.HiveMeasurement>
 
-
 @{
     var apiaries = (IEnumerable<Apiary>)ViewData["Apiaries"];
     var selectedApiaryId = ViewData["SelectedApiaryId"] as int?;
     var hives = (IEnumerable<Hive>)ViewData["Hives"];
-    var selectedHiveId = ViewData["SelectedHiveId"] as int?;
+    var selectedHives = ViewData["SelectedHives"] as int[] ?? Array.Empty<int>();
 
-    // Získání hodnot pro graf z modelu
-    var measurements = Model.ToList();
-    var weights = measurements.Select(m => m.Weight).ToArray(); // Váhy
-    var labels = measurements.Select(m => m.MeasurementDate.ToString("yyyy-MM-dd HH:mm")).ToArray(); // Datum a čas
+    var chartDatasets = (List<DatasetForPlot>)ViewData["ChartDatasets"];
+    //var labels = (string[])ViewData["Labels"];
+
+    var labels = new[] { "2025-01-01 10:00", "2025-01-01 12:00", "2025-01-01 14:00" }; // Datum a čas
+    var data = new[] { 12.5, 12.8, 13.0 }; // Hmotnosti v kg
 }
 
 <h1>Hive Measurements</h1>
@@ -23,71 +23,102 @@
             <option value="">-- Select Apiary --</option>
             @foreach (var apiary in apiaries)
             {
-                <option value="@apiary.ApiaryNumber" selected="@(apiary.ApiaryNumber == selectedApiaryId)">
-                    @apiary.Name
-                </option>
-            }
-        </select>
-    </div>
-
-    <div>
-        <label for="hive">Hive:</label>
-        <select id="hive" name="hiveId" onchange="this.form.submit()">
-            <option value="">-- Select Hive --</option>
-            @foreach (var hive in hives)
-            {
-                <option value="@hive.HiveNumber" selected=@(hive.HiveNumber == selectedHiveId ? "selected" : "")>
-                   @hive.HiveNumber
-                </option>
-            }
+                if (apiary.ApiaryNumber == selectedApiaryId)
+                {
+                    <option value="@apiary.ApiaryNumber" selected="selected">@apiary.Name</option>
+                }
+                else
+                {
+                    <option value="@apiary.ApiaryNumber">@apiary.Name</option>
+                }            }
         </select>
     </div>
 </form>
-<!-- Místo pro graf -->
-<canvas id="weightChart" width="400" height="200"></canvas>
 
+    <!-- Checkboxy pro výběr úlů -->
+<form method="get" action="/HiveMeasurement/Index">
+    <input type="hidden" name="apiaryId" value="@selectedApiaryId" />
+    <div>
+        <label>Hives to include:</label>
+        <div id="hive-checkboxes">
+            @if (hives != null && hives.Any())
+            {
+                @foreach (var hive in hives)
+                {
+                    <div>
+                        <input type="checkbox" id="hive-@hive.HiveNumber" name="selectedHives" value="@hive.HiveNumber"
+                        @(selectedHives.Contains(hive.HiveNumber) ? "checked" : "")
+                               onchange="this.form.submit()">
+                        <label for="hive-@hive.HiveNumber">Hive #@hive.HiveNumber</label>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>Select an apiary to see available hives.</p>
+            }
+        </div>
+    </div>
+</form>
+
+// Log pro kontrolu dat
+
+
+<!-- Místo pro graf -->
+<canvas id="weightChart" width="800" height="400"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    var ctx = document.getElementById('weightChart').getContext('2d');
-    var weightChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: @Html.Raw(Json.Serialize(labels)), // Dynamicky načtené labely (datum/čas)
-            datasets: [{
-                label: 'Weight (kg)', // Popis pro váhu
-                data: @Html.Raw(Json.Serialize(weights)), // Dynamicky načtená data pro váhu
-                fill: false,
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    min: Math.min(...@Html.Raw(Json.Serialize(weights))) - 1, // Automatické nastavení minima
-                    max: Math.max(...@Html.Raw(Json.Serialize(weights))) + 1, // Automatické nastavení maxima
-                    title: {
+        const labels = @Html.Raw(Json.Serialize(labels));
+
+        const data = @Html.Raw(Json.Serialize(data));
+    // Inicializace grafu
+        const ctx = document.getElementById('weightChart').getContext('2d');
+        const weightChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Hmotnost úlu (kg)',
+                    data: data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
                         display: true,
-                        text: 'Weight (kg)' // Název osy Y (váha)
+                        position: 'top',
                     },
-                    ticks: {
-                        stepSize: 1
-                    }
                 },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Date and Time' // Název osy X (datum a čas)
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            parser: 'YYYY-MM-DD HH:mm',
+                            tooltipFormat: 'YYYY-MM-DD HH:mm',
+                            unit: 'hour'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Datum a čas'
+                        }
                     },
-                    ticks: {
-                        maxRotation: 45, // Rotace pro lepší čitelnost datumu
-                        minRotation: 45
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Hmotnost (kg)'
+                        },
+                        beginAtZero: true
                     }
                 }
             }
-        }
-    });
+        });
 </script>
 
 <!-- Tabulka -->
