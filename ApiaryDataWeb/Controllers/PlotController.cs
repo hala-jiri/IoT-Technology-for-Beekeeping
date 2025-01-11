@@ -7,26 +7,29 @@ namespace ApiaryDataWeb.Controllers
     {
         public IActionResult TimeSeriesChart()
         {
-            var dataSet1 = new List<TimeSeriesData>
-        {
-            new TimeSeriesData { Time = new DateTime(2025, 1, 10, 12, 15, 0), Value = 5 },
-            new TimeSeriesData { Time = new DateTime(2025, 1, 10, 12, 30, 0), Value = 12 },
-            new TimeSeriesData { Time = new DateTime(2025, 1, 10, 12, 45, 0), Value = 13 }
-        };
+            // Raw JSON data
+            var rawJson = @"{
+                ""dataSets"": [
+                    [
+                        { ""time"": ""2025-01-10T12:15:00"", ""value"": 40 },
+                        { ""time"": ""2025-01-10T12:38:00"", ""value"": 38 },
+                        { ""time"": ""2025-01-10T13:53:00"", ""value"": 13 }
+                    ],
+                    [
+                        { ""time"": ""2025-01-10T12:14:00"", ""value"": 21 },
+                        { ""time"": ""2025-01-10T12:29:00"", ""value"": 23 },
+                        { ""time"": ""2025-01-10T12:44:00"", ""value"": 25 },
+                        { ""time"": ""2025-01-10T12:59:00"", ""value"": 27 },
+                        { ""time"": ""2025-01-10T13:14:00"", ""value"": 25 },
+                        { ""time"": ""2025-01-10T13:29:00"", ""value"": 23 },
+                        { ""time"": ""2025-01-10T13:44:00"", ""value"": 21 }
+                    ]
+                ]
+            }";
 
-            var dataSet2 = new List<TimeSeriesData>
-        {
-            new TimeSeriesData { Time = new DateTime(2025, 1, 10, 12, 14, 0), Value = 21 },
-            new TimeSeriesData { Time = new DateTime(2025, 1, 10, 12, 29, 0), Value = 23 },
-            new TimeSeriesData { Time = new DateTime(2025, 1, 10, 12, 44, 0), Value = 18 }
-        };
-
-            var viewModel = new TimeSeriesChartViewModel
-            {
-                DataSets = new List<List<TimeSeriesData>> { dataSet1, dataSet2 }
-            };
-
-            return View(viewModel);
+            // Pass raw JSON to the view
+            ViewBag.ChartData = rawJson;
+            return View();
         }
     }
 }

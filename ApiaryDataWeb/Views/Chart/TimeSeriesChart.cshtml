@@ -1,47 +1,49 @@
-﻿
-
-@model TimeSeriesChartViewModel
-
+﻿@{
+    var chartData = ViewBag.ChartData ?? "{}";
+}
 
 <div>
    
 </div>
 
 <h1>Plot test</h1>
-<pre>@Html.Raw(Json.Serialize(Model))</pre>
+<!-- Debugging: Display raw JSON -->
+<pre>@chartData</pre>
 
-<canvas id="timeSeriesChart" width="800" height="400"></canvas>
+
+<canvas id="timeSeriesChart" width="600" height="400"></canvas>
 
 <!-- Místo pro graf -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/luxon"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
 <script>
+
+
+
+        // Parse the raw JSON data from the server
+    const rawData = @Html.Raw(chartData);
+
+    // Transform raw JSON into datasets for Chart.js
+    const datasets = rawData.dataSets.map((dataSet, index) => {
+        return {
+            label: `Dataset ${index + 1}`,
+            data: dataSet.map(d => ({
+                x: d.time,
+                y: d.value
+            })),
+            fill: false,
+            borderColor: `rgba(${75 + index * 50}, 192, 192, 1)`, // Unique color for each dataset
+            tension: 0.1
+        };
+    });
+
+
+
     const config = {
         type: 'line',
         data: {
-            datasets: [{
-                label: 'Test Dataset',
-                data: [
-                    { x: '2025-01-10T12:15:00', y: 5 },
-                    { x: '2025-01-10T12:20:00', y: 12 },
-                    { x: '2025-01-10T12:45:00', y: 13 }
-                ],
-                fill: false,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                tension: 0.1
-            },
-            {
-                    label: 'Dataset 2',
-                    data: [
-                        { x: '2025-01-10T12:14:00', y: 21 },
-                        { x: '2025-01-10T12:29:00', y: 23 },
-                        { x: '2025-01-10T12:44:00', y: 18 }
-                    ],
-                    fill: false,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    tension: 0.1
-                }]
+            datasets: datasets
         },
         options: {
             scales: {
