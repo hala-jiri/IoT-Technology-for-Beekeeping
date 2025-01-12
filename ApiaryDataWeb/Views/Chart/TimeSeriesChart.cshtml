@@ -1,6 +1,6 @@
 ﻿@{
     var timeUnit = ViewBag.TimeUnit ?? "minute"; // Defaultní hodnota 'minute'
-    var minimum = ViewBag.Minimum ?? -20; // Defaultní hodnota 'minute'
+    var minimum = ViewBag.Minimum ?? 0; // Defaultní hodnota 'minute'
     var maximum = ViewBag.Maximum ?? 100; // Defaultní hodnota 'minute'
 
     var chartData = ViewBag.ChartData ?? "{}";
@@ -14,8 +14,9 @@
 <!-- Debugging: Display raw JSON -->
 <pre>@chartData</pre>
 
-
-<canvas id="timeSeriesChart" width="600" height="400"></canvas>
+<div style="width: 800px; height: 600px;">
+<canvas id="timeSeriesChart" width="400" height="200"></canvas>
+</div>
 
 <!-- Místo pro graf -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -29,19 +30,18 @@
     const rawData = @Html.Raw(chartData);
 
     // Transform raw JSON into datasets for Chart.js
-    const datasets = rawData.dataSets.map((dataSet, index) => {
+    const datasets = rawData.datasets.map((dataSet) => {
         return {
-            label: `Dataset ${index + 1}`,
-            data: dataSet.map(d => ({
-                x: d.time,
+            label: dataSet.label, // Použij label z dat
+            data: dataSet.data.map(d => ({
+                x: d.koko,
                 y: d.value
             })),
             fill: false,
-            borderColor: `rgba(${75 + index * 50}, 192, 192, 1)`, // Unique color for each dataset
+            borderColor: dataSet.borderColor, // Použij barvu čáry
             tension: 0.1
         };
     });
-
 
     const timeUnit = '@timeUnit'; // ViewBag.TimeUnit value
     const minimum = parseFloat('@minimum'); // ViewBag.TimeUnit value

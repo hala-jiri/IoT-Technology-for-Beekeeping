@@ -1,5 +1,6 @@
 ﻿using ApiaryDataWeb.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace ApiaryDataWeb.Controllers
 {
@@ -33,55 +34,43 @@ namespace ApiaryDataWeb.Controllers
          */
         public IActionResult TimeSeriesChart()
         {
-            // Raw JSON data
-            var rawJson = @"{
-                ""dataSets"": [
-                    [
-                        { ""time"": ""2025-01-10T12:15:00"", ""value"": 40 },
-                        { ""time"": ""2025-01-10T12:38:00"", ""value"": 38 },
-                        { ""time"": ""2025-01-10T13:53:00"", ""value"": 13 }
-                    ],
-                    [
-                        { ""time"": ""2025-01-10T12:14:00"", ""value"": 21 },
-                        { ""time"": ""2025-01-10T12:29:00"", ""value"": 23 },
-                        { ""time"": ""2025-01-10T12:44:00"", ""value"": 25 },
-                        { ""time"": ""2025-01-10T12:59:00"", ""value"": 27 },
-                        { ""time"": ""2025-01-10T13:14:00"", ""value"": 25 },
-                        { ""time"": ""2025-01-10T13:29:00"", ""value"": 23 },
-                        { ""time"": ""2025-01-10T13:44:00"", ""value"": 21 },
-                        { ""time"": ""2025-01-10T13:59:00"", ""value"": 27 },
-                        { ""time"": ""2025-01-10T13:59:00"", ""value"": 27 },
-                        { ""time"": ""2025-01-10T14:14:00"", ""value"": 25 },
-                        { ""time"": ""2025-01-10T14:29:00"", ""value"": 23 },
-                        { ""time"": ""2025-01-10T14:44:00"", ""value"": 21 },
-                        { ""time"": ""2025-01-10T14:59:00"", ""value"": 27 },
-                        { ""time"": ""2025-01-10T15:14:00"", ""value"": 21 },
-                        { ""time"": ""2025-01-10T15:29:00"", ""value"": 23 },
-                        { ""time"": ""2025-01-10T15:44:00"", ""value"": 25 },
-                        { ""time"": ""2025-01-10T15:59:00"", ""value"": 27 },
-                        { ""time"": ""2025-01-10T16:14:00"", ""value"": 25 },
-                        { ""time"": ""2025-01-10T16:29:00"", ""value"": 23 },
-                        { ""time"": ""2025-01-10T16:44:00"", ""value"": 21 },
-                        { ""time"": ""2025-01-10T16:59:00"", ""value"": 27 },
-                        { ""time"": ""2025-01-10T17:14:00"", ""value"": 21 },
-                        { ""time"": ""2025-01-10T17:29:00"", ""value"": 23 },
-                        { ""time"": ""2025-01-10T17:44:00"", ""value"": 25 },
-                        { ""time"": ""2025-01-10T17:59:00"", ""value"": 27 },
-                        { ""time"": ""2025-01-10T18:14:00"", ""value"": 25 },
-                        { ""time"": ""2025-01-10T18:29:00"", ""value"": 23 },
-                        { ""time"": ""2025-01-10T18:44:00"", ""value"": 21 },
-                        { ""time"": ""2025-01-10T18:59:00"", ""value"": 27 },
-                        { ""time"": ""2025-01-10T19:14:00"", ""value"": 21 },
-                        { ""time"": ""2025-01-10T19:29:00"", ""value"": 23 },
-                        { ""time"": ""2025-01-10T19:44:00"", ""value"": 25 },
-                       ]
-                ]}";
+            ViewBag.ChartData = JsonConvert.SerializeObject(new
+            {
+                datasets = new[]
+        {
+            new
+            {
+                label = "Teplota",
+                borderColor = "rgba(255, 99, 132, 1)", // Červená barva
+                data = new[]
+                {
+                    new { koko = "2025-01-01T10:00:00Z", value = 10 }, // koko is the time
+                    new { koko = "2025-01-01T11:00:00Z", value = 8 },
+                    new { koko = "2025-01-01T12:00:00Z", value = 20 },
+                    new { koko = "2025-01-01T13:00:00Z", value = 12 },
+                    new { koko = "2025-01-01T14:00:00Z", value = 7 }
+                }
+            },
+            new
+            {
+                label = "Vlhkost",
+                borderColor = "rgba(54, 162, 235, 1)", // Modrá barva
+                data = new[]
+                {
+                    new { koko = "2025-01-01T10:00:00Z", value = 30 },
+                    new { koko = "2025-01-01T11:00:00Z", value = 25 },
+                    new { koko = "2025-01-01T12:15:00Z", value = 20 },
+                    new { koko = "2025-01-01T12:30:00Z", value = 35 },
+                    new { koko = "2025-01-01T14:00:00Z", value = 37 }
+                }
+            }
+        }
+            });
 
             // Pass raw JSON to the view
-            ViewBag.TimeUnit = "minute";
+            ViewBag.TimeUnit = "hour";
             ViewBag.Minimum = 10-5;
             ViewBag.Maximum = 40+5;
-            ViewBag.ChartData = rawJson;
             return View();
         }
     }
