@@ -1,4 +1,8 @@
 ﻿@{
+    var timeUnit = ViewBag.TimeUnit ?? "minute"; // Defaultní hodnota 'minute'
+    var minimum = ViewBag.Minimum ?? -20; // Defaultní hodnota 'minute'
+    var maximum = ViewBag.Maximum ?? 100; // Defaultní hodnota 'minute'
+
     var chartData = ViewBag.ChartData ?? "{}";
 }
 
@@ -39,6 +43,10 @@
     });
 
 
+    const timeUnit = '@timeUnit'; // ViewBag.TimeUnit value
+    const minimum = parseFloat('@minimum'); // ViewBag.TimeUnit value
+    const maximum = parseFloat('@maximum'); // ViewBag.TimeUnit value
+
 
     const config = {
         type: 'line',
@@ -50,11 +58,13 @@
                 x: {
                     type: 'time',
                     time: {
-                        unit: 'minute'
+                        unit: timeUnit
                     }
                 },
                 y: {
-                    beginAtZero: true
+                    beginAtZero: 'true',
+                    min: minimum,
+                    max: maximum
                 }
             }
         }
