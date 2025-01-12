@@ -3,9 +3,14 @@
     public class DatasetForPlot
     {
         public string? label { get; set; }
-        public double[]? data { get; set; }
-        public bool fill { get; set; }
+        public Data[]? data { get; set; }
         public string? borderColor { get; set; }
-        public double tension { get; set; }
+        public bool hidden { get; set; }
+    }
+
+    public class Data
+    {
+        public string? koko { get; set; }
+        public float value { get; set; }
     }
 }

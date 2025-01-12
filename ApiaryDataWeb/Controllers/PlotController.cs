@@ -37,34 +37,34 @@ namespace ApiaryDataWeb.Controllers
             ViewBag.ChartData = JsonConvert.SerializeObject(new
             {
                 datasets = new[]
-        {
-            new
-            {
-                label = "Teplota",
-                borderColor = "rgba(255, 99, 132, 1)", // Červená barva
-                data = new[]
                 {
-                    new { koko = "2025-01-01T10:00:00Z", value = 10 }, // koko is the time
-                    new { koko = "2025-01-01T11:00:00Z", value = 8 },
-                    new { koko = "2025-01-01T12:00:00Z", value = 20 },
-                    new { koko = "2025-01-01T13:00:00Z", value = 12 },
-                    new { koko = "2025-01-01T14:00:00Z", value = 7 }
+                    new
+                    {
+                        label = "Teplota",
+                        borderColor = "rgba(255, 99, 132, 1)", // Červená barva
+                        data = new[]
+                        {
+                            new { koko = "2025-01-01T10:00:00Z", value = 10 }, // koko is the time
+                            new { koko = "2025-01-01T11:00:00Z", value = 8 },
+                            new { koko = "2025-01-01T12:00:00Z", value = 20 },
+                            new { koko = "2025-01-01T13:00:00Z", value = 12 },
+                            new { koko = "2025-01-01T14:00:00Z", value = 7 }
+                        }
+                    },
+                    new
+                    {
+                        label = "Vlhkost",
+                        borderColor = "rgba(54, 162, 235, 1)", // Modrá barva
+                        data = new[]
+                        {
+                            new { koko = "2025-01-01T10:00:00Z", value = 30 },
+                            new { koko = "2025-01-01T11:00:00Z", value = 25 },
+                            new { koko = "2025-01-01T12:15:00Z", value = 20 },
+                            new { koko = "2025-01-01T12:30:00Z", value = 35 },
+                            new { koko = "2025-01-01T14:00:00Z", value = 37 }
+                        }
+                    }
                 }
-            },
-            new
-            {
-                label = "Vlhkost",
-                borderColor = "rgba(54, 162, 235, 1)", // Modrá barva
-                data = new[]
-                {
-                    new { koko = "2025-01-01T10:00:00Z", value = 30 },
-                    new { koko = "2025-01-01T11:00:00Z", value = 25 },
-                    new { koko = "2025-01-01T12:15:00Z", value = 20 },
-                    new { koko = "2025-01-01T12:30:00Z", value = 35 },
-                    new { koko = "2025-01-01T14:00:00Z", value = 37 }
-                }
-            }
-        }
             });
 
             // Pass raw JSON to the view

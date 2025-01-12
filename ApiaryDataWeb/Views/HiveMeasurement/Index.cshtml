@@ -6,11 +6,12 @@
     var hives = (IEnumerable<Hive>)ViewData["Hives"];
     var selectedHives = ViewData["SelectedHives"] as int[] ?? Array.Empty<int>();
 
-    var chartDatasets = (List<DatasetForPlot>)ViewData["ChartDatasets"];
-    //var labels = (string[])ViewData["Labels"];
+    //chart part
+    var timeUnit = ViewBag.TimeUnit ?? "minute"; // Defaultní hodnota 'minute'
+    var minimum = ViewBag.Minimum ?? 0; // Defaultní hodnota '0'
+    var maximum = ViewBag.Maximum ?? 100; // Defaultní hodnota '100'
+    var chartData = ViewBag.ChartData ?? "{}";
 
-    var labels = new[] { "2025-01-01 10:00", "2025-01-01 12:00", "2025-01-01 14:00" }; // Datum a čas
-    var data = new[] { 12.5, 12.8, 13.0 }; // Hmotnosti v kg
 }
 
 <h1>Hive Measurements</h1>
@@ -60,68 +61,68 @@
         </div>
     </div>
 </form>
-
-// Log pro kontrolu dat
+<!-- Místo pro graf -->
+<div style="width: 800px; height: 600px;">
+    <canvas id="timeSeriesChart" width="800" height="400"></canvas>
+</div>
 
 
 <!-- Místo pro graf -->
-<canvas id="weightChart" width="800" height="400"></canvas>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
 <script>
-        const labels = @Html.Raw(Json.Serialize(labels));
+    // Parse the raw JSON data from the server
+    const rawData = @Html.Raw(chartData);
 
-        const data = @Html.Raw(Json.Serialize(data));
-    // Inicializace grafu
-        const ctx = document.getElementById('weightChart').getContext('2d');
-        const weightChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Hmotnost úlu (kg)',
-                    data: data,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                    },
-                },
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            parser: 'YYYY-MM-DD HH:mm',
-                            tooltipFormat: 'YYYY-MM-DD HH:mm',
-                            unit: 'hour'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Datum a čas'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Hmotnost (kg)'
-                        },
-                        beginAtZero: true
+    // Transform raw JSON into datasets for Chart.js
+    const datasets = rawData.datasets.map((dataSet) => {
+        return {
+            label: dataSet.label, // Použij label z dat
+            data: dataSet.data.map(d => ({
+                x: d.koko,
+                y: d.value
+            })),
+            hidden: dataSet.hidden,
+            fill: false,
+            borderColor: dataSet.borderColor, // Použij barvu čáry
+            tension: 0.1
+        };
+    });
+
+    const timeUnit = '@timeUnit'; // ViewBag.TimeUnit value
+    const minimum = parseFloat('@minimum'); // ViewBag.TimeUnit value
+    const maximum = parseFloat('@maximum'); // ViewBag.TimeUnit value
+
+
+    const config = {
+        type: 'line',
+        data: {
+            datasets: datasets
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: timeUnit
                     }
+                },
+                y: {
+                    beginAtZero: 'true',
+                    min: minimum,
+                    max: maximum
                 }
             }
-        });
+        }
+    };
+
+    const ctx = document.getElementById('timeSeriesChart').getContext('2d');
+    new Chart(ctx, config);
 </script>
 
-<!-- Tabulka -->
+
+<!-- 
 <table>
     <thead>
         <tr>
@@ -146,4 +147,4 @@
             </tr>
         }
     </tbody>
-</table>
+</table>Tabulka -->

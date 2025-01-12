@@ -4,6 +4,7 @@ using ApiaryDataCollector.Models; // Namespace pro Hive, HiveMeasurement
 using System.Linq;
 using System.Threading.Tasks;
 using ApiaryDataWeb.Models;
+using Newtonsoft.Json;
 
 namespace ApiaryDataWeb.Controllers
 {
@@ -67,48 +68,110 @@ namespace ApiaryDataWeb.Controllers
                 .ToList();
 
             // Create datasets for each hive
+            //var datasets = new List<DatasetForPlot>();
+
+            //foreach (var group in groupedMeasurements)
+            //{
+               
+            //    var dataset = new DatasetForPlot()
+            //    {
+            //        label = $"Hive #{group.Key}",
+            //        //data = weights,
+            //        fill = false,
+            //        borderColor = "#" + (new Random()).Next(0, 0xFFFFFF).ToString("X6"), // random color for each line
+            //        tension = 0.1
+            //    };
+
+            //    datasets.Add(dataset);
+            //}
+
+            // Výpočet minima a maxima
+            double globalMin = Math.Round(groupedMeasurements
+                .SelectMany(group => group.Select(m => m.Weight))
+                .Min())-5;
+
+            double globalMax = Math.Round(groupedMeasurements
+                .SelectMany(group => group.Select(m => m.Weight))
+                .Max())+5;
+
+            // Pass datasets to View
+            /*var chartData = JsonConvert.SerializeObject(new
+            {
+                datasets = new[]
+                {
+                    new
+                    {
+                        label = "Teplota",
+                        borderColor = "rgba(255, 99, 132, 1)", // Červená barva
+                        hidden = false,
+                        data = new[]
+                        {
+                            new { koko = "2025-01-01T10:00:00Z", value = 30 }, // koko is the time
+                            new { koko = "2025-01-01T11:00:00Z", value = 21 },
+                            new { koko = "2025-01-01T12:00:00Z", value = 20 },
+                            new { koko = "2025-01-01T13:00:00Z", value = 12 },
+                            new { koko = "2025-01-01T14:00:00Z", value = 7 }
+                        }
+                    },
+                    new
+                    {
+                        label = "Vlhkost",
+                        borderColor = "rgba(54, 162, 235, 1)", // Modrá barva
+                        hidden = false,
+                        data = new[]
+                        {
+                            new { koko = "2025-01-01T10:00:00Z", value = 30 },
+                            new { koko = "2025-01-01T11:00:00Z", value = 25 },
+                            new { koko = "2025-01-01T12:15:00Z", value = 20 },
+                            new { koko = "2025-01-01T12:30:00Z", value = 35 },
+                            new { koko = "2025-01-01T14:00:00Z", value = 37 }
+                        }
+                    }
+                }
+            });*/
+
             var datasets = new List<DatasetForPlot>();
 
             foreach (var group in groupedMeasurements)
             {
-                var weights = new double[10] { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.10 }; //group.Select(m => m.Weight).ToArray();
-                var labels = new double[10] { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.10 };//group.Select(m => m.MeasurementDate.ToString("yyyy-MM-dd HH:mm")).ToArray();
 
-                var dataset = new DatasetForPlot()
+                // Naplnění dat ze skupiny
+                var dataPoints = group.Select(m => new Data
+                {
+                    koko = m.MeasurementDate.ToString("yyyy-MM-ddTHH:mm:ssZ"), // ISO8601 formát času
+                    value = (float)m.Weight // Zaokrouhlení Weight na celé číslo (Data.value je int)
+                }).ToArray();
+
+
+                // Vytvoření datasetu pro tuto skupinu
+                var datasetForPlot = new DatasetForPlot
                 {
                     label = $"Hive #{group.Key}",
-                    data = weights,
-                    fill = false,
-                    borderColor = "#" + (new Random()).Next(0, 0xFFFFFF).ToString("X6"), // random color for each line
-                    tension = 0.1
+                    borderColor = "#" + (new Random()).Next(0, 0xFFFFFF).ToString("X6"), // Náhodná barva
+                    hidden = false,
+                    data = dataPoints
                 };
 
-                datasets.Add(dataset);
+                datasets.Add(datasetForPlot);
             }
+            //{
 
-            // Výpočet minima a maxima
-            double globalMin = groupedMeasurements
-                .SelectMany(group => group.Select(m => m.Weight))
-                .Min()-1;
+            //    var dataset = new DatasetForPlot()
+            //    {
+            //        label = $"Hive #{group.Key}",
+            //        //data = weights,
+            //        fill = false,
+            //        borderColor = "#" + (new Random()).Next(0, 0xFFFFFF).ToString("X6"), // random color for each line
+            //        tension = 0.1
+            //    };
 
-            double globalMax = groupedMeasurements
-                .SelectMany(group => group.Select(m => m.Weight))
-                .Max()+1;
-
-            Random rand = new Random();
-            // Testovací log pro kontrolu dat
-            foreach (var dataset in datasets)
-            {
-                Console.WriteLine($"Label: {dataset.label}, Data: {string.Join(",", dataset.data)}, BorderColor: {dataset.borderColor}");
-                
-            }
-            //test
-            // Pass datasets to View
-            ViewData["ChartDatasets"] = datasets;
-            
+            //    datasets.Add(dataset);
+            ViewBag.ChartData = JsonConvert.SerializeObject(new { datasets });
             //ViewData["Labels"] = measurements.Select(m => m.MeasurementDate.ToString("yyyy-MM-dd HH:mm")).Distinct().ToArray();
-            ViewData["GlobalMin"] = 0;
-            ViewData["GlobalMax"] = 20;
+
+            ViewBag.TimeUnit = "hour";
+            ViewBag.Minimum = globalMin;
+            ViewBag.Maximum = globalMax;
 
             ViewData["SelectedHives"] = selectedHives;
 
