@@ -46,9 +46,16 @@
                             </ul>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="HiveMeasurement" asp-action="Index">Data Collection</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarHive" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Measurements
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarHive">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="HiveMeasurement" asp-action="Index">First version</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="HiveMeasurement" asp-action="Overview">Second version</a></li>
+                            </ul>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="SeedDatabase" asp-action="Index">Seed Database</a>
                         </li>

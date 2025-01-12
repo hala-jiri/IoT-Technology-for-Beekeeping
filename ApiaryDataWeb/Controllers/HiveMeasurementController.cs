@@ -72,7 +72,7 @@ namespace ApiaryDataWeb.Controllers
 
             //foreach (var group in groupedMeasurements)
             //{
-               
+
             //    var dataset = new DatasetForPlot()
             //    {
             //        label = $"Hive #{group.Key}",
@@ -88,11 +88,11 @@ namespace ApiaryDataWeb.Controllers
             // Výpočet minima a maxima
             double globalMin = Math.Round(groupedMeasurements
                 .SelectMany(group => group.Select(m => m.Weight))
-                .Min())-5;
+                .Min()) - 5;
 
             double globalMax = Math.Round(groupedMeasurements
                 .SelectMany(group => group.Select(m => m.Weight))
-                .Max())+5;
+                .Max()) + 5;
 
             // Pass datasets to View
             /*var chartData = JsonConvert.SerializeObject(new
@@ -173,6 +173,97 @@ namespace ApiaryDataWeb.Controllers
             ViewBag.Minimum = globalMin;
             ViewBag.Maximum = globalMax;
 
+            ViewData["SelectedHives"] = selectedHives;
+
+            return View(measurements);
+        }
+
+
+        public async Task<IActionResult> Overview(int? apiaryId, int[] selectedHives)
+        {
+            // Load data for dropdown filters
+            ViewData["Apiaries"] = await _context.Apiaries.ToListAsync();
+            ViewData["SelectedApiaryId"] = apiaryId;
+
+            if (apiaryId.HasValue)
+            {
+                ViewData["Hives"] = await _context.Hives
+                    .Where(h => h.ApiaryNumber == apiaryId)
+                    .ToListAsync();
+            }
+            else
+            {
+                ViewData["Hives"] = Enumerable.Empty<Hive>();
+            }
+
+
+            
+             // Pokud nejsou vybrány žádné úly, nebudeme načítat měření
+            if (selectedHives == null || selectedHives.Length == 0)
+            {
+                ViewData["ChartDatasets"] = new List<DatasetForPlot>();
+                ViewData["Labels"] = new string[0];
+                ViewData["GlobalMin"] = 0;
+                ViewData["GlobalMax"] = 0;
+                return View(new List<HiveMeasurement>());
+            }
+
+            // Load measurements
+            var measurementsQuery = _context.HiveMeasurement
+                .Include(m => m.Hive)
+                .ThenInclude(h => h.Apiary)
+                .AsQueryable();
+
+            if (selectedHives != null && selectedHives.Length > 0)
+            {
+                measurementsQuery = measurementsQuery.Where(m => selectedHives.Contains(m.HiveNumber));
+            }
+            else if (apiaryId.HasValue)
+            {
+                measurementsQuery = measurementsQuery.Where(m => m.Hive.ApiaryNumber == apiaryId);
+            }
+
+
+
+
+            var measurements = await measurementsQuery.ToListAsync();
+
+            // Group measurements by HiveNumber
+            var groupedMeasurements = measurements
+                .GroupBy(m => m.HiveNumber)
+                .ToList();
+
+
+            var hiveCharts = groupedMeasurements.Select(group =>
+            {
+                var hiveMeasurements = group.ToList();
+
+                // Data pro váhu a teplotu
+                var dataPoints = hiveMeasurements.Select(m => new
+                {
+                    Time = m.MeasurementDate.ToString("yyyy-MM-ddTHH:mm:ssZ"), // ISO8601
+                    Weight = m.Weight,
+                    Temperature = m.Temperature
+                }).ToList();
+
+                // Výpočet minima a maxima
+                double weightMin = Math.Floor(hiveMeasurements.Min(m => m.Weight)) - 5;
+                double weightMax = Math.Ceiling(hiveMeasurements.Max(m => m.Weight)) + 5;
+                double tempMin = Math.Floor(hiveMeasurements.Min(m => m.Temperature)) - 5;
+                double tempMax = Math.Ceiling(hiveMeasurements.Max(m => m.Temperature)) + 5;
+
+                return new
+                {
+                    HiveNumber = group.Key,
+                    Data = dataPoints,
+                    WeightMin = weightMin,
+                    WeightMax = weightMax,
+                    TempMin = tempMin,
+                    TempMax = tempMax
+                };
+            }).ToList();
+
+            ViewBag.ChartData = JsonConvert.SerializeObject(hiveCharts);
             ViewData["SelectedHives"] = selectedHives;
 
             return View(measurements);
