@@ -65,9 +65,9 @@ public class DatabaseSeeder
 
             foreach (var hiveInApiary in apiary.Hives)
             {
-                AddHiveMeasurements(hiveInApiary, startDate, 100);
+                AddHiveMeasurements(hiveInApiary, startDate, 5000);
             }
-            AddApiaryMeasurements(apiary, startDate, 100);
+            AddApiaryMeasurements(apiary, startDate, 5000);
         }
     }
         
