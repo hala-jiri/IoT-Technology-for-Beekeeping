@@ -1,1 +1,24 @@
 What need to be done:
+- reorganize main menu
+	- Hive managment
+		- Overview (page with all hives and all apiaries
+		- Add hive? (maybe)
+		- Update hive? (maybe)
+		
+- clean code from controllers which are written
+- for measurements
+	- make an overview over all hives (into small blocks)
+		- one block = one apiary.... each apiary will have multiple divs / hives with data:
+			- green or red icon if measurement is in last 30minute or not)
+			- last value of the measurements (temperature / humidity)
+			- under icon of apiary will be also if data are active (red / green) and values of measuring there)
+
+- fix Export of data
+	- fix the ZIP file creating
+	- add Export of inspections (the same as measurements methods)
+	
+- make an new CSS for whole web
+- make statistic page about how many measurements we have and etc.
+	(maybe on main page? 
+	
+		
