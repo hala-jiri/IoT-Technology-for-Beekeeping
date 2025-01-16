@@ -18,11 +18,13 @@ namespace ApiaryDataWeb.Controllers
         }
 
         // GET: HiveMeasurement/Index
-        public async Task<IActionResult> Index(int? apiaryId, int[] selectedHives)
+        public async Task<IActionResult> Index(int? apiaryId, int[] selectedHives, string selectedDateRange = "Last24h")
         {
             // Load data for dropdown filters
             ViewData["Apiaries"] = await _context.Apiaries.ToListAsync();
             ViewData["SelectedApiaryId"] = apiaryId;
+            //ViewBag.DateRange = dateRange; // Uložení vybraného rozsahu do ViewBag
+
 
             if (apiaryId.HasValue)
             {
@@ -42,6 +44,16 @@ namespace ApiaryDataWeb.Controllers
                 ViewData["Labels"] = new string[0];
                 ViewData["GlobalMin"] = 0;
                 ViewData["GlobalMax"] = 0;
+                ViewData["SelectedDateRange"] = selectedDateRange ?? "Last24h"; // Defaultně Last24h
+                return View(new List<HiveMeasurement>());
+            }
+
+            ViewData["SelectedHives"] = selectedHives;
+            ViewData["SelectedDateRange"] = selectedDateRange ?? "Last24h"; // Defaultně Last24h
+
+            if (selectedHives == null || selectedHives.Length == 0)
+            {
+                ViewBag.ChartData = JsonConvert.SerializeObject(new { datasets = new List<DatasetForPlot>() });
                 return View(new List<HiveMeasurement>());
             }
 
@@ -49,15 +61,34 @@ namespace ApiaryDataWeb.Controllers
             var measurementsQuery = _context.HiveMeasurement
                 .Include(m => m.Hive)
                 .ThenInclude(h => h.Apiary)
-                .AsQueryable();
+                .Where(m => selectedHives.Contains(m.HiveNumber));
 
-            if (selectedHives != null && selectedHives.Length > 0)
+            /*if (selectedHives != null && selectedHives.Length > 0)
             {
                 measurementsQuery = measurementsQuery.Where(m => selectedHives.Contains(m.HiveNumber));
             }
             else if (apiaryId.HasValue)
             {
                 measurementsQuery = measurementsQuery.Where(m => m.Hive.ApiaryNumber == apiaryId);
+            }*/
+
+            // Aplikace filtru na základě časového rozsahu
+            var now = DateTime.UtcNow;
+            switch (selectedDateRange)
+            {
+                case "Last24h":
+                    measurementsQuery = measurementsQuery.Where(m => m.MeasurementDate >= now.AddDays(-1) && m.MeasurementDate <= now);
+                    break;
+                case "Last7Days":
+                    measurementsQuery = measurementsQuery.Where(m => m.MeasurementDate >= now.AddDays(-7) && m.MeasurementDate <= now);
+                    break;
+                case "Last30Days":
+                    measurementsQuery = measurementsQuery.Where(m => m.MeasurementDate >= now.AddDays(-30) && m.MeasurementDate <= now);
+                    break;
+                case "All":
+                default:
+                    // Neaplikovat žádný filtr
+                    break;
             }
 
             var measurements = await measurementsQuery.ToListAsync();
@@ -86,49 +117,18 @@ namespace ApiaryDataWeb.Controllers
             //}
 
             // Výpočet minima a maxima
-            double globalMin = Math.Round(groupedMeasurements
+            double globalMin = 0; //default value
+            double globalMax = 80; //default value
+            if (groupedMeasurements.Any())
+            {
+                globalMin = Math.Round(groupedMeasurements
                 .SelectMany(group => group.Select(m => m.Weight))
                 .Min()) - 5;
 
-            double globalMax = Math.Round(groupedMeasurements
-                .SelectMany(group => group.Select(m => m.Weight))
-                .Max()) + 5;
-
-            // Pass datasets to View
-            /*var chartData = JsonConvert.SerializeObject(new
-            {
-                datasets = new[]
-                {
-                    new
-                    {
-                        label = "Teplota",
-                        borderColor = "rgba(255, 99, 132, 1)", // Červená barva
-                        hidden = false,
-                        data = new[]
-                        {
-                            new { koko = "2025-01-01T10:00:00Z", value = 30 }, // koko is the time
-                            new { koko = "2025-01-01T11:00:00Z", value = 21 },
-                            new { koko = "2025-01-01T12:00:00Z", value = 20 },
-                            new { koko = "2025-01-01T13:00:00Z", value = 12 },
-                            new { koko = "2025-01-01T14:00:00Z", value = 7 }
-                        }
-                    },
-                    new
-                    {
-                        label = "Vlhkost",
-                        borderColor = "rgba(54, 162, 235, 1)", // Modrá barva
-                        hidden = false,
-                        data = new[]
-                        {
-                            new { koko = "2025-01-01T10:00:00Z", value = 30 },
-                            new { koko = "2025-01-01T11:00:00Z", value = 25 },
-                            new { koko = "2025-01-01T12:15:00Z", value = 20 },
-                            new { koko = "2025-01-01T12:30:00Z", value = 35 },
-                            new { koko = "2025-01-01T14:00:00Z", value = 37 }
-                        }
-                    }
-                }
-            });*/
+                globalMax = Math.Round(groupedMeasurements
+                    .SelectMany(group => group.Select(m => m.Weight))
+                    .Max()) + 5;
+            }
 
             var datasets = new List<DatasetForPlot>();
 
@@ -154,18 +154,7 @@ namespace ApiaryDataWeb.Controllers
 
                 datasets.Add(datasetForPlot);
             }
-            //{
-
-            //    var dataset = new DatasetForPlot()
-            //    {
-            //        label = $"Hive #{group.Key}",
-            //        //data = weights,
-            //        fill = false,
-            //        borderColor = "#" + (new Random()).Next(0, 0xFFFFFF).ToString("X6"), // random color for each line
-            //        tension = 0.1
-            //    };
-
-            //    datasets.Add(dataset);
+            
             ViewBag.ChartData = JsonConvert.SerializeObject(new { datasets });
             //ViewData["Labels"] = measurements.Select(m => m.MeasurementDate.ToString("yyyy-MM-dd HH:mm")).Distinct().ToArray();
 
@@ -173,13 +162,13 @@ namespace ApiaryDataWeb.Controllers
             ViewBag.Minimum = globalMin;
             ViewBag.Maximum = globalMax;
 
-            ViewData["SelectedHives"] = selectedHives;
+
 
             return View(measurements);
         }
 
 
-        public async Task<IActionResult> Overview(int? apiaryId, int[] selectedHives)
+        public async Task<IActionResult> Overview(int? apiaryId, int[] selectedHives, string selectedDateRange = "Last24h")
         {
             // Load data for dropdown filters
             ViewData["Apiaries"] = await _context.Apiaries.ToListAsync();
@@ -205,8 +194,13 @@ namespace ApiaryDataWeb.Controllers
                 ViewData["Labels"] = new string[0];
                 ViewData["GlobalMin"] = 0;
                 ViewData["GlobalMax"] = 0;
+                ViewData["SelectedDateRange"] = selectedDateRange ?? "Last24h"; // Defaultně Last24h
                 return View(new List<HiveMeasurement>());
             }
+
+            ViewData["SelectedHives"] = selectedHives;
+            ViewData["SelectedDateRange"] = selectedDateRange ?? "Last24h"; // Defaultně Last24h
+
 
             // Load measurements
             var measurementsQuery = _context.HiveMeasurement
@@ -223,7 +217,24 @@ namespace ApiaryDataWeb.Controllers
                 measurementsQuery = measurementsQuery.Where(m => m.Hive.ApiaryNumber == apiaryId);
             }
 
-
+            // Aplikace filtru na základě časového rozsahu
+            var now = DateTime.UtcNow;
+            switch (selectedDateRange)
+            {
+                case "Last24h":
+                    measurementsQuery = measurementsQuery.Where(m => m.MeasurementDate >= now.AddDays(-1) && m.MeasurementDate <= now);
+                    break;
+                case "Last7Days":
+                    measurementsQuery = measurementsQuery.Where(m => m.MeasurementDate >= now.AddDays(-7) && m.MeasurementDate <= now);
+                    break;
+                case "Last30Days":
+                    measurementsQuery = measurementsQuery.Where(m => m.MeasurementDate >= now.AddDays(-30) && m.MeasurementDate <= now);
+                    break;
+                case "All":
+                default:
+                    // Neaplikovat žádný filtr
+                    break;
+            }
 
 
             var measurements = await measurementsQuery.ToListAsync();
@@ -264,7 +275,6 @@ namespace ApiaryDataWeb.Controllers
             }).ToList();
 
             ViewBag.ChartData = JsonConvert.SerializeObject(hiveCharts);
-            ViewData["SelectedHives"] = selectedHives;
 
             return View(measurements);
         }

@@ -5,14 +5,16 @@
     var selectedApiaryId = ViewData["SelectedApiaryId"] as int?;
     var hives = (IEnumerable<Hive>)ViewData["Hives"];
     var selectedHives = ViewData["SelectedHives"] as int[] ?? Array.Empty<int>();
+    var selectedDateRange = ViewData["SelectedDateRange"] as string ?? "Last24h";
 
     var chartData = ViewBag.ChartData ?? "[]";
 }
 
 <h1>Hives Overview</h1>
 
-<form method="get" action="/HiveMeasurement/Overview">
-    <div>
+<form method="get" action="/HiveMeasurement/Overview" style="display: flex; justify-content: space-between; gap: 20px;">
+    <!-- Levá část: Výběr Apiary -->
+    <div style ="flex: 1;">
         <label for="apiary">Apiary:</label>
         <select id="apiary" name="apiaryId" onchange="this.form.submit()">
             <option value="">-- Select Apiary --</option>
@@ -30,21 +32,18 @@
             }
         </select>
     </div>
-</form>
 
-<form method="get" action="/HiveMeasurement/Overview">
-    <input type="hidden" name="apiaryId" value="@selectedApiaryId" />
-    <div>
+    <!-- Prostřední část: Výběr Hives -->
+    <div style="flex: 2;">
         <label>Hives to include:</label>
-        <div id="hive-checkboxes">
+        <div id="hive-checkboxes" style="display: flex; flex-wrap: wrap; gap: 10px;">
             @if (hives != null && hives.Any())
             {
                 @foreach (var hive in hives)
                 {
                     <div>
                         <input type="checkbox" id="hive-@hive.HiveNumber" name="selectedHives" value="@hive.HiveNumber"
-                        @(selectedHives.Contains(hive.HiveNumber) ? "checked" : "")
-                               onchange="this.form.submit()">
+                        @(selectedHives.Contains(hive.HiveNumber) ? "checked" : "") onchange="this.form.submit()">
                         <label for="hive-@hive.HiveNumber">Hive #@hive.HiveNumber</label>
                     </div>
                 }
@@ -55,7 +54,38 @@
             }
         </div>
     </div>
+
+
+    <!-- Pravá část: Výběr Date Range -->
+    <div style="flex: 1;">
+        <label>Date Range:</label>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div>
+                <input type="radio" id="last24h" name="selectedDateRange" value="Last24h"
+                @(selectedDateRange == "Last24h" ? "checked" : "") onchange="this.form.submit()">
+                <label for="last24h">Last 24h</label>
+            </div>
+            <div>
+                <input type="radio" id="last7days" name="selectedDateRange" value="Last7Days"
+                @(selectedDateRange == "Last7Days" ? "checked" : "") onchange="this.form.submit()">
+                <label for="last7days">Last 7 days</label>
+            </div>
+            <div>
+                <input type="radio" id="last30days" name="selectedDateRange" value="Last30Days"
+                @(selectedDateRange == "Last30Days" ? "checked" : "") onchange="this.form.submit()">
+                <label for="last30days">Last 30 days</label>
+            </div>
+            <div>
+                <input type="radio" id="all" name="selectedDateRange" value="All"
+                @(selectedDateRange == "All" ? "checked" : "") onchange="this.form.submit()">
+                <label for="all">All</label>
+            </div>
+        </div>
+    </div>
+
+
 </form>
+
 <div style="width: 800px; height: 600px;">
 <!-- Vygenerování grafů -->
 <div id="charts-container" >
