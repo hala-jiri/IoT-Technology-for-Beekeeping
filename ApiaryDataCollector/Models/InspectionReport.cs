@@ -4,6 +4,7 @@ namespace ApiaryDataCollector.Models
 {
     public class InspectionReport
     {
+        //TODO: where is Hive ID???? where the hell I drop it.
         [Key]
         public int ReportId { get; set; }
         public DateTime InspectionDate { get; set; } // Datum inspekce
