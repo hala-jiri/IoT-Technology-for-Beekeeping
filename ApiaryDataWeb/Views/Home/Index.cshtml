@@ -1,8 +1,58 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model HomeOverviewViewModel
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="overview">
+    <h1>Apiaries Overview</h1>
+
+    @if (Model.ApiaryData != null && Model.ApiaryData.Any())
+    {
+        @foreach (var apiary in Model.ApiaryData)
+        {
+            <div class="apiary-block" style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                <div class="apiary-info" style="margin-bottom: 10px;">
+                    <h2>Apiary: @apiary.Name</h2>
+                    <p>Temperature: @(apiary.LastApiaryMeasurement?.Temperature.ToString("F1") ?? "N/A") °C</p>
+                    <p>Humidity: @(apiary.LastApiaryMeasurement?.Humidity.ToString() ?? "N/A") %</p>
+                    <p>Light Intensity: @(apiary.LastApiaryMeasurement?.LightIntensity.ToString() ?? "N/A") lux</p>
+                    <p>
+                        Status:
+                        <span style="color: @(apiary.Active ? "green" : "red"); font-weight: bold;">
+                            @(apiary.Active ? "Active" : "Non-active")
+                        </span>
+                    </p>
+                </div>
+
+                <div class="hives" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    @if (apiary.Hives != null && apiary.Hives.Any())
+                    {
+                        @foreach (var hive in apiary.Hives)
+                        {
+                            <div class="hive-block" style="border: 1px solid #ddd; padding: 10px; width: 200px;">
+                                <h3>Hive: @hive.HiveName</h3>
+                                <p>Temperature: @(hive.LastHiveMeasurement?.Temperature.ToString("F1") ?? "N/A") °C</p>
+                                <p>Humidity: @(hive.LastHiveMeasurement?.Humidity.ToString() ?? "N/A") %</p>
+                                <p>
+                                    Status:
+                                    <span style="color: @(hive.Active ? "green" : "red"); font-weight: bold;">
+                                        @(hive.Active ? "Active" : "Non-active")
+                                    </span>
+                                </p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>No hives available for this apiary.</p>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No apiary data available.</p>
+    }
+
+    <div>
+        <p>Čas načtení dat: @ViewBag.LoadTimeMilliseconds ms</p>
+    </div>
 </div>
