@@ -22,29 +22,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <!-- Apiary Dropdown -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarApiary" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Apiaries
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarApiary">
-                                <li><a class="dropdown-item" href="/Apiary">List</a></li>
-                                <li><a class="dropdown-item" href="/Apiary/Create">Create</a></li>
-                                <li><a class="dropdown-item" href="/Apiary/Edit">Edit</a></li>
-                            </ul>
-                        </li>
 
-                        <!-- Hive Dropdown -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarHive" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Hives
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarHive">
-                                <li><a class="dropdown-item" href="/Hive">List</a></li>
-                                <li><a class="dropdown-item" href="/Hive/Create">Create</a></li>
-                                <li><a class="dropdown-item" href="/Hive/Edit">Edit</a></li>
-                            </ul>
-                        </li>
 
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarHive" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -56,14 +34,62 @@
                             </ul>
                         </li>
 
+
+                        <!-- Hive/Apiary managment Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarApiary" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Hive/Apiary managment
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarApiary">
+                                <li><a class="dropdown-item" href="/Apiary">List</a></li>
+                                <li><a class="dropdown-item" href="/Apiary/Create">Create</a></li>
+                                <li><a class="dropdown-item" href="/Apiary/Edit">Edit</a></li>
+                            </ul>
+                        </li>
+                        <!--
+                         Apiary Dropdown
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarApiary" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Apiaries
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarApiary">
+                                <li><a class="dropdown-item" href="/Apiary">List</a></li>
+                                <li><a class="dropdown-item" href="/Apiary/Create">Create</a></li>
+                                <li><a class="dropdown-item" href="/Apiary/Edit">Edit</a></li>
+                            </ul>
+                        </li>
+
+                        Hive Dropdown
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarHive" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Hives
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarHive">
+                                <li><a class="dropdown-item" href="/Hive">List</a></li>
+                                <li><a class="dropdown-item" href="/Hive/Create">Create</a></li>
+                                <li><a class="dropdown-item" href="/Hive/Edit">Edit</a></li>
+                            </ul>
+                        </li>-->
+
+                        <!--
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="SeedDatabase" asp-action="Index">Seed Database</a>
-                        </li>
+                        </li>-->
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Chart" asp-action="TimeSeriesChart">Chart test</a>
                         </li>
-                        <li class="nav-item">
+                        <!--<li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="ExportData" asp-action="Index">Export Data</a>
+                        </li>-->
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarHive" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Advance
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarHive">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="ExportData" asp-action="Index">Export data</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="SeedDatabase" asp-action="Index">Seed database</a></li>
+                            </ul>
                         </li>
                     </ul>
                 </div>

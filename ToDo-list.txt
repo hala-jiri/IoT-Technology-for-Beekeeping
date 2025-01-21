@@ -18,11 +18,15 @@ What need to be done:
 	- add Export of inspections (the same as measurements methods)
 	
 - make an new CSS for whole web
-- make statistic page about how many measurements we have and etc.
-	(maybe on main page? )
 - update aggregation for charts (at least for month view)
 - when i return from TableDetail page to Hivemeasurement/overiver, data in URL are correct, but dropdown boxes are not preselected. (like apiary and etc)
 	(https://localhost:7289/HiveMeasurement/Overview?selectedHives=354&selectedDateRange=Last30Days)
 	
 - add form for generating database seed. that I dont need to change code always when to generate different amout of data.
-- fix issue with menu (cannot go to "Export Data")
+
+
+
+DONE:
+x fix issue with menu (cannot go to "Export Data")
+x make statistic page about how many measurements we have and etc.
+	(maybe on main page? )
