@@ -16,7 +16,7 @@ namespace ApiaryDataWeb.Controllers
         {
             DateTime startOfProcess = DateTime.Now;
             DatabaseSeeder kuku = new DatabaseSeeder(_context);
-            kuku.SeedDatabase();
+            kuku.SeedDatabase(4,8,500,500,168);
 
             DateTime endOfProcess = DateTime.Now;
 

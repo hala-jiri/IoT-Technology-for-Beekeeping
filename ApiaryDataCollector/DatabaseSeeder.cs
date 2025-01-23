@@ -13,8 +13,10 @@ public class DatabaseSeeder
         _context = context;
     }
 
-    public void SeedDatabase()
+    public void SeedDatabase(int hivesPerApiaryMin = 4, int hivesPerApiaryMax = 8, int numberOfHiveMeasurementRecords = 500, int numberOfApiaryMeasurementRecords = 500, int HoursIntoHistory = 168)
     {
+        // HoursIntoHistory = 168 => one week
+
         // Clear the database
         _context.HiveMeasurement.ExecuteDelete();
         _context.ApiaryMeasurement.ExecuteDelete();
@@ -40,7 +42,7 @@ public class DatabaseSeeder
         foreach (var apiary in apiaries)
         {
             // Create Hives for each Apiary
-            int hivesPerApiary = random.Next(4, 8); // Randomly assign 4-8 hives per Apiary
+            int hivesPerApiary = random.Next(hivesPerApiaryMin, hivesPerApiaryMax); // Randomly assign 4-8 hives per Apiary
             var hives = new List<Hive>();
 
             for (int i = 0; i < hivesPerApiary; i++)
@@ -61,13 +63,13 @@ public class DatabaseSeeder
         {
             var apiaryMeasurementsList = new List<ApiaryMeasurement>();
             var hiveMeasurementsList = new List<HiveMeasurement>();
-            DateTime startDate = DateTime.Now.AddDays(-30); // Start from 30 days ago
+            DateTime startDate = DateTime.Now.AddHours(-HoursIntoHistory); // Start from 30 days ago
 
             foreach (var hiveInApiary in apiary.Hives)
             {
-                AddHiveMeasurements(hiveInApiary, startDate, 5000);
+                AddHiveMeasurements(hiveInApiary, startDate, numberOfHiveMeasurementRecords); //5000
             }
-            AddApiaryMeasurements(apiary, startDate, 5000);
+            AddApiaryMeasurements(apiary, startDate, numberOfApiaryMeasurementRecords); //5000
         }
     }
         
@@ -183,7 +185,19 @@ public class DatabaseSeeder
     private int RandomLightIntensity(int startIntensity)
     {
         Random random = new Random();
-        return startIntensity + random.Next(-10,10);
+        if (startIntensity > 900)
+        {
+            return startIntensity - random.Next(10, 25);
+        }
+        else if (startIntensity < 50)
+        {
+            return startIntensity + random.Next(10,25);
+        }
+        else
+        {
+            return startIntensity + (random.Next(0, 20)-10);
+        }
+
     }
 
     private void ClearDatabase()
