@@ -23,6 +23,7 @@ What need to be done:
 	(https://localhost:7289/HiveMeasurement/Overview?selectedHives=354&selectedDateRange=Last30Days)
 	
 - add form for generating database seed. that I dont need to change code always when to generate different amout of data.
+- bug on table view for detailed measurement (measurement in table for specific hive when I choose data range (for example day) and these data are not available, it point out for null pointer. Need to be fixed)
 
 
 
