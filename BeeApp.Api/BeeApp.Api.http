@@ -1,0 +1,6 @@
+@BeeApp.Api_HostAddress = http://localhost:5276
+
+GET {{BeeApp.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
