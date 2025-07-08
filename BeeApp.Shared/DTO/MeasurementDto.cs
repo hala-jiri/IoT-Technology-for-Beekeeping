@@ -11,9 +11,9 @@ namespace BeeApp.Shared.DTO
         public int ApiaryId { get; set; }
         public DateTime? MeasurementDate { get; set; }
 
-        public double Temperature { get; set; }
-        public int Humidity { get; set; }
-        public int LightIntensity { get; set; }
+        public double? Temperature { get; set; }
+        public int? Humidity { get; set; }
+        public int? LightIntensity { get; set; }
 
         public List<HiveMeasurementDto> Hives { get; set; }
     }
