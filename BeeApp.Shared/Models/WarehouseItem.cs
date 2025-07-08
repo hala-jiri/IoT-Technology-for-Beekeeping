@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BeeApp.Shared.Models
 {
-    internal class WarehouseItem
+    public class WarehouseItem
     {
     }
 }

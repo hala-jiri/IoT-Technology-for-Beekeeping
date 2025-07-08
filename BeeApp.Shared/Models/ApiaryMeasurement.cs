@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BeeApp.Shared.Models
 {
-    public class Hive
+    public class ApiaryMeasurement
     {
     }
 }

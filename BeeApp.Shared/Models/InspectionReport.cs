@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BeeApp.Shared.Models
 {
-    internal class InspectionReport
+    public class InspectionReport
     {
     }
 }

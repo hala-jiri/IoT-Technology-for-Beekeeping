@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BeeApp.Shared.DTO
 {
-    internal class ApiaryDto
+    public class ApiaryDto
     {
     }
 }
