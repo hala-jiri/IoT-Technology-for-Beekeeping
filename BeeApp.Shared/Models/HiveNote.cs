@@ -8,19 +8,18 @@ using System.Threading.Tasks;
 
 namespace BeeApp.Shared.Models
 {
-    public class HiveMeasurement
+    public class HiveNote
     {
         [Key]
         public int Id { get; set; }
 
-        public DateTime MeasurementDate { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [ForeignKey("Hive")]
-        public int HiveId { get; set; }
+        public int HiveNumber { get; set; }
         public Hive Hive { get; set; }
 
-        public double Weight { get; set; }
-        public double Temperature { get; set; }
-        public int Humidity { get; set; }
+        [Required]
+        public string NoteText { get; set; }
     }
 }
