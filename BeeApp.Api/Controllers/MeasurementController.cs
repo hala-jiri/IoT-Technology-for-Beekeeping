@@ -19,6 +19,9 @@ namespace BeeApp.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Receive([FromBody] MeasurementDto dto)
         {
+            if (dto == null)
+                return BadRequest("Invalid payload");
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -26,9 +29,9 @@ namespace BeeApp.Api.Controllers
             {
                 ApiaryId = dto.ApiaryId,
                 MeasurementDate = dto.MeasurementDate ?? DateTime.UtcNow,
-                Temperature = dto.Temperature,
-                Humidity = dto.Humidity,
-                LightIntensity = dto.LightIntensity
+                Temperature = dto.Temperature ?? 0,
+                Humidity = dto.Humidity ?? 0,
+                LightIntensity = dto.LightIntensity ?? 0
             };
             _context.ApiaryMeasurements.Add(apiaryMeasurement);
 
@@ -38,9 +41,9 @@ namespace BeeApp.Api.Controllers
                 {
                     HiveId = hive.HiveId,
                     MeasurementDate = dto.MeasurementDate ?? DateTime.UtcNow,
-                    Weight = hive.Weight,
-                    Temperature = hive.Temperature,
-                    Humidity = hive.Humidity
+                    Weight = hive.Weight ?? 0,
+                    Temperature = hive.Temperature ?? 0,
+                    Humidity = hive.Humidity ?? 0
                 };
                 _context.HiveMeasurements.Add(hiveMeasurement);
             }

@@ -19,6 +19,7 @@ namespace BeeApp.Shared.Models
         public int ApiaryId { get; set; }
         public Apiary Apiary { get; set; }
 
+        //TODO: think if we should be able to keep null data or make them as 0
         public double Temperature { get; set; }
         public int Humidity { get; set; }
         public int LightIntensity { get; set; }
