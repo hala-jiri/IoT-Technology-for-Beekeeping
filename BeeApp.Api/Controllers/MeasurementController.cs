@@ -1,4 +1,4 @@
-﻿using BeeApp.Api.Data;
+﻿using BeeApp.Shared.Data;
 using BeeApp.Shared.DTO;
 using BeeApp.Shared.Models;
 using Microsoft.AspNetCore.Mvc;

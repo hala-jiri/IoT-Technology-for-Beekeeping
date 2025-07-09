@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using BeeApp.Shared.DTO;
 using BeeApp.Shared.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
-namespace BeeApp.Api.Data
+namespace BeeApp.Shared.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<IdentityUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 

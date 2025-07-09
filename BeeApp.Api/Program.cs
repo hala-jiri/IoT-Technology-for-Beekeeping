@@ -1,5 +1,5 @@
-using BeeApp.Api.Data;
 using BeeApp.Api.Mapping;
+using BeeApp.Shared.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
