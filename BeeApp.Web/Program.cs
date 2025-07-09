@@ -1,5 +1,6 @@
+﻿using BeeApp.Shared.Data;
 using BeeApp.Web.Data;
-using BeeApp.Shared.Data;
+using BeeApp.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +15,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<AppDbContext>();
 builder.Services.AddControllersWithViews();
-
+// přidat do DI kontejneru:
+builder.Services.AddScoped<DataSeederService>();
 
 var app = builder.Build();
 
