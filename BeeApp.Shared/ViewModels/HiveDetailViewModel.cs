@@ -13,7 +13,7 @@ namespace BeeApp.Shared.ViewModels
         public string HiveName { get; set; }
 
         public string ApiaryName { get; set; }
-        public string ApiaryLocation { get; set; } // zatím text – později mapa
+        public string ApiaryLocation { get; set; } // For now text - later map
 
         public DateTime? LastHiveMeasurementDate { get; set; }
         public double? LastWeight { get; set; }
@@ -24,6 +24,15 @@ namespace BeeApp.Shared.ViewModels
         public double? LastApiaryPressure { get; set; }
         public double? LastApiaryLight { get; set; }
 
-        public List<HiveMeasurement> MeasurementsForChart { get; set; } = new();
+        public List<HiveMeasurement> MeasurementsForChart { get; set; } = new();    // TODO: make changes that it load just last measurements
+        public List<HiveMeasurementPoint> ChartData { get; set; } = new();
+
+    }
+
+    public class HiveMeasurementPoint
+    {
+        public DateTime Date { get; set; }
+        public double? Weight { get; set; }
+        public double? Temperature { get; set; }
     }
 }

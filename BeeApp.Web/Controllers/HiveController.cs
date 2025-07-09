@@ -181,6 +181,16 @@ namespace BeeApp.Web.Controllers
                 MeasurementsForChart = hive.Measurements
                     .OrderByDescending(m => m.MeasurementDate)
                     .Take(30)
+                    .ToList(),
+
+                ChartData = hive.Measurements
+                    .OrderBy(m => m.MeasurementDate)
+                    .Select(m => new HiveMeasurementPoint
+                    {
+                        Date = m.MeasurementDate,
+                        Weight = m.Weight,
+                        Temperature = m.Temperature
+                    })
                     .ToList()
             };
 
