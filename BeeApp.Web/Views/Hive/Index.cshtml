@@ -13,6 +13,7 @@
             <th>Last measurement</th>
             <th>Weight (kg)</th>
             <th>Temperature (°C)</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -23,6 +24,11 @@
                 <td>@(hive.LastMeasurement?.ToString("g") ?? "–")</td>
                 <td>@(hive.LastWeight?.ToString("F1") ?? "–")</td>
                 <td>@(hive.LastTemperature?.ToString("F1") ?? "–")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@hive.HiveId">✏️ Edit</a>
+                    <a asp-action="Delete" asp-route-id="@hive.HiveId" class="text-danger">🗑️ Delete</a>
+
+                </td>
             </tr>
         }
     </tbody>

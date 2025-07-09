@@ -1,0 +1,20 @@
+﻿@model BeeApp.Shared.Models.Apiary
+
+<h2>⚠️ Confirmation of delete apiary</h2>
+
+<p>Are you sure that you wanna delete apiary <strong>@Model.Name</strong>?</p>
+
+@if (Model.Hives.Any())
+{
+    <div class="alert alert-danger">
+        Cannot delete – contains hives!
+    </div>
+}
+else
+{
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="ApiaryId" />
+        <button type="submit" class="btn btn-danger">Yes, delete</button>
+        <a asp-action="Index" class="btn btn-secondary">candel</a>
+    </form>
+}

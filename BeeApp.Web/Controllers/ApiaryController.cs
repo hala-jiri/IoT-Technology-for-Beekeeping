@@ -60,5 +60,71 @@ namespace BeeApp.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var apiary = await _context.Apiaries.FindAsync(id);
+            if (apiary == null) return NotFound();
+
+            var dto = new ApiaryUpdateDto
+            {
+                ApiaryId = apiary.ApiaryId,
+                Name = apiary.Name
+            };
+
+            return View(dto);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(ApiaryUpdateDto dto)
+        {
+            if (!ModelState.IsValid) return View(dto);
+
+            var apiary = await _context.Apiaries.FindAsync(dto.ApiaryId);
+            if (apiary == null) return NotFound();
+
+            apiary.Name = dto.Name;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var apiary = await _context.Apiaries
+                .Include(a => a.Hives)
+                .FirstOrDefaultAsync(a => a.ApiaryId == id);
+
+            if (apiary == null)
+                return NotFound();
+
+            return View(apiary);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int ApiaryId)
+        {
+            var apiary = await _context.Apiaries
+                .Include(a => a.Hives)
+                .FirstOrDefaultAsync(a => a.ApiaryId == ApiaryId);
+
+            if (apiary == null)
+                return NotFound();
+
+            if (apiary.Hives.Any())
+            {
+                TempData["Error"] = "You cannot delete apiary which contains hives.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            _context.Apiaries.Remove(apiary);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

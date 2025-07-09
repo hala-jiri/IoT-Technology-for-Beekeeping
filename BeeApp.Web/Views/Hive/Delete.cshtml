@@ -1,0 +1,11 @@
+﻿@model BeeApp.Shared.Models.Hive
+
+<h2>⚠️ Confirm of delete hive</h2>
+
+<p>Are you sure that you want to delete hive <strong>@Model.Name</strong>?</p>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="HiveId" />
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a asp-action="Index" asp-route-apiaryId="@Model.ApiaryId" class="btn btn-secondary">Cancel</a>
+</form>

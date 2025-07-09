@@ -2,6 +2,13 @@
 
 <h1>Apiaries</h1>
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
 <p>
     <a asp-action="Create" class="btn btn-success">➕ Add Apiary</a>
 </p>
@@ -25,6 +32,9 @@
                 <td>@a.LastMeasurement?.ToString("g")</td>
                 <td>
                     <a asp-controller="Hive" asp-action="Index" asp-route-apiaryId="@a.ApiaryId">Show hives</a>
+                    <a asp-action="Edit" asp-route-id="@a.ApiaryId">✏️ Edit</a>
+                    <a asp-action="Delete" asp-route-id="@a.ApiaryId" class="text-danger">🗑️ Delete</a>
+
                 </td>
             </tr>
         }
