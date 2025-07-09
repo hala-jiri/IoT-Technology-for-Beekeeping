@@ -25,6 +25,7 @@
                 <td>@(hive.LastWeight?.ToString("F1") ?? "–")</td>
                 <td>@(hive.LastTemperature?.ToString("F1") ?? "–")</td>
                 <td>
+                    <a asp-action="Detail" asp-route-id="@hive.HiveId" class="btn btn-link">🔍 Detail</a>
                     <a asp-action="Edit" asp-route-id="@hive.HiveId">✏️ Edit</a>
                     <a asp-action="Delete" asp-route-id="@hive.HiveId" class="text-danger">🗑️ Delete</a>
 

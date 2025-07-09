@@ -1,0 +1,28 @@
+﻿@model BeeApp.Shared.ViewModels.HiveDetailViewModel
+
+<h2>Hive: @Model.HiveName</h2>
+<p><strong>Apiary:</strong> @Model.ApiaryName (@Model.ApiaryLocation)</p> <!-- TODO: make location working -->
+
+<hr />
+<h4>📍 Last measurement of apiary:</h4>
+<ul>
+    <li><strong>Time:</strong> @Model.LastApiaryMeasurementDate?.ToString("g")</li>
+    <li><strong>Temperature:</strong> @Model.LastApiaryTemp °C</li>
+    <!--<li><strong>Tlak:</strong> @Model.LastApiaryPressure hPa</li> -->
+    <li><strong>Light intensity:</strong> @Model.LastApiaryLight lx</li>
+</ul>
+
+<h4>📊 Last measurement of hive:</h4>
+<ul>
+    <li><strong>Time:</strong> @Model.LastHiveMeasurementDate?.ToString("g")</li>
+    <li><strong>Weight:</strong> @Model.LastWeight kg</li>
+    <li><strong>Temperature:</strong> @Model.LastHiveTemp °C</li>
+</ul>
+
+
+
+<hr />
+
+<h4>📈 Chart (Weight/Temperature)</h4>
+<!-- todo: put Chart.js -->
+<p>Soon will come plot of data. We collected @Model.MeasurementsForChart.Count measurements</p>

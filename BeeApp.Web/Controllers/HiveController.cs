@@ -145,5 +145,47 @@ namespace BeeApp.Web.Controllers
 
             return RedirectToAction("Index", new { apiaryId });
         }
+
+        public async Task<IActionResult> Detail(int id)
+        {
+            var hive = await _context.Hives
+                .Include(h => h.Apiary)
+                .Include(h => h.Measurements)
+                .FirstOrDefaultAsync(h => h.HiveId == id);
+
+            if (hive == null) return NotFound();
+
+            var lastHiveMeasurement = hive.Measurements.OrderByDescending(m => m.MeasurementDate).FirstOrDefault();
+
+            var lastApiaryMeasurement = await _context.ApiaryMeasurements
+                .Where(a => a.ApiaryId == hive.ApiaryId)
+                .OrderByDescending(m => m.MeasurementDate)
+                .FirstOrDefaultAsync();
+
+            var viewModel = new HiveDetailViewModel
+            {
+                HiveId = hive.HiveId,
+                HiveName = hive.Name,
+                ApiaryName = hive.Apiary?.Name,
+                //TODO: ApiaryLocation = hive.Apiary?.Location ?? "(Unknown)",
+
+                LastHiveMeasurementDate = lastHiveMeasurement?.MeasurementDate,
+                LastWeight = lastHiveMeasurement?.Weight,
+                LastHiveTemp = lastHiveMeasurement?.Temperature,
+
+                LastApiaryMeasurementDate = lastApiaryMeasurement?.MeasurementDate,
+                LastApiaryTemp = lastApiaryMeasurement?.Temperature,
+                //TODO: LastApiaryPressure = lastApiaryMeasurement?.Pressure,
+                LastApiaryLight = lastApiaryMeasurement?.LightIntensity,
+
+                MeasurementsForChart = hive.Measurements
+                    .OrderByDescending(m => m.MeasurementDate)
+                    .Take(30)
+                    .ToList()
+            };
+
+            return View(viewModel);
+        }
+
     }
 }

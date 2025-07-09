@@ -1,0 +1,29 @@
+﻿using BeeApp.Shared.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BeeApp.Shared.ViewModels
+{
+    public class HiveDetailViewModel
+    {
+        public int HiveId { get; set; }
+        public string HiveName { get; set; }
+
+        public string ApiaryName { get; set; }
+        public string ApiaryLocation { get; set; } // zatím text – později mapa
+
+        public DateTime? LastHiveMeasurementDate { get; set; }
+        public double? LastWeight { get; set; }
+        public double? LastHiveTemp { get; set; }
+
+        public DateTime? LastApiaryMeasurementDate { get; set; }
+        public double? LastApiaryTemp { get; set; }
+        public double? LastApiaryPressure { get; set; }
+        public double? LastApiaryLight { get; set; }
+
+        public List<HiveMeasurement> MeasurementsForChart { get; set; } = new();
+    }
+}
