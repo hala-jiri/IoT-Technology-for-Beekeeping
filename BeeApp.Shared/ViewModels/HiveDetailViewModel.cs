@@ -23,6 +23,9 @@ namespace BeeApp.Shared.ViewModels
         public double? LastApiaryTemp { get; set; }
         public double? LastApiaryPressure { get; set; }
         public double? LastApiaryLight { get; set; }
+        
+        public InspectionReport? LastInspection { get; set; }
+
 
         public List<HiveMeasurement> MeasurementsForChart { get; set; } = new();    // TODO: make changes that it load just last measurements
         public List<HiveMeasurementPoint> ChartData { get; set; } = new();

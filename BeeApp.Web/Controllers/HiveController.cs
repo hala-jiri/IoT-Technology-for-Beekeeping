@@ -219,6 +219,12 @@ namespace BeeApp.Web.Controllers
                 .OrderByDescending(m => m.MeasurementDate)
                 .FirstOrDefaultAsync();
 
+
+            var lastInspection = await _context.InspectionReports
+                .Where(r => r.HiveId == id)
+                .OrderByDescending(r => r.InspectionDate)
+                .FirstOrDefaultAsync();
+
             var viewModel = new HiveDetailViewModel
             {
                 HiveId = hive.HiveId,
@@ -230,12 +236,14 @@ namespace BeeApp.Web.Controllers
                 LastApiaryMeasurementDate = lastApiaryMeasurement?.MeasurementDate,
                 LastApiaryTemp = lastApiaryMeasurement?.Temperature,
                 LastApiaryLight = lastApiaryMeasurement?.LightIntensity,
-                MeasurementsForChart = rawData, // nebo jen posledních 30?
+                LastInspection = lastInspection,
+                MeasurementsForChart = rawData,
                 ChartData = chartData,
                 CurrentRange = range,
                 CurrentAggregation = agg,
                 CurrentSmoothing = isSmoothing
             };
+
 
             return View(viewModel);
         }

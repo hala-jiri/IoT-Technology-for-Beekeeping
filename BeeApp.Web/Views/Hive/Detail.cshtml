@@ -22,7 +22,26 @@
     <li><strong>Temperature:</strong> @Model.LastHiveTemp?.ToString("F2") °C</li>
 </ul>
 
-
+<h4>🧪 Last inspection</h4>
+@if (Model.LastInspection != null)
+{
+    <ul>
+        <li><strong>Date:</strong> @Model.LastInspection.InspectionDate.ToString("g")</li>
+        <li><strong>Queen seen:</strong> @(Model.LastInspection.QueenSeen == true ? "✅ Yes" : Model.LastInspection.QueenSeen == false ? "❌ No" : "–")</li>
+        <li><strong>Brood:</strong> @(Model.LastInspection.BroodPresent == true ? "✅" : Model.LastInspection.BroodPresent == false ? "❌" : "–")</li>
+        <li><strong>Eggs:</strong> @(Model.LastInspection.EggsPresent == true ? "✅" : Model.LastInspection.EggsPresent == false ? "❌" : "–")</li>
+        <li><strong>Pollen:</strong> @(Model.LastInspection.PollenPresent == true ? "✅" : Model.LastInspection.PollenPresent == false ? "❌" : "–")</li>
+        <li><strong>Honey:</strong> @(Model.LastInspection.HoneyPresent == true ? "✅" : Model.LastInspection.HoneyPresent == false ? "❌" : "–")</li>
+        <li><strong>Note:</strong> @Model.LastInspection.Notes</li>
+    </ul>
+}
+else
+{
+    <p>No inspection yet.</p>
+}
+<p>
+    <a asp-controller="Inspection" asp-action="Create" asp-route-hiveId="@Model.HiveId" class="btn btn-outline-success">➕ Add Inspection</a>
+</p>
 
 <hr />
 <h4>Data Chart</h4>
