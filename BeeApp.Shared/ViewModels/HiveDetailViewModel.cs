@@ -27,6 +27,9 @@ namespace BeeApp.Shared.ViewModels
         public List<HiveMeasurement> MeasurementsForChart { get; set; } = new();    // TODO: make changes that it load just last measurements
         public List<HiveMeasurementPoint> ChartData { get; set; } = new();
 
+        public string CurrentRange { get; set; } = "14d";
+        public int CurrentAggregation { get; set; }
+        public bool CurrentSmoothing { get; set; } = true;
     }
 
     public class HiveMeasurementPoint

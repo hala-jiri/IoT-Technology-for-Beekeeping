@@ -4,6 +4,7 @@ using BeeApp.Shared.Models;
 using BeeApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace BeeApp.Web.Controllers
 {
@@ -146,8 +147,10 @@ namespace BeeApp.Web.Controllers
             return RedirectToAction("Index", new { apiaryId });
         }
 
-        public async Task<IActionResult> Detail(int id)
+        public async Task<IActionResult> Detail(int id, string range = "14d", int? aggregationHours = null, bool? smoothing = null)
         {
+            bool isSmoothing = smoothing ?? true;
+
             var hive = await _context.Hives
                 .Include(h => h.Apiary)
                 .Include(h => h.Measurements)
@@ -155,8 +158,62 @@ namespace BeeApp.Web.Controllers
 
             if (hive == null) return NotFound();
 
-            var lastHiveMeasurement = hive.Measurements.OrderByDescending(m => m.MeasurementDate).FirstOrDefault();
 
+            var now = DateTime.Now;
+            DateTime from = range switch
+            {
+                "1D" => now.AddHours(-now.Hour),
+                "24h" => now.AddHours(-24),
+                "7d" => now.AddDays(-7),
+                "14d" => now.AddDays(-14),
+                _ => now.AddDays(-14)
+            };
+
+            int agg = aggregationHours ?? range switch
+            {
+                "24h" => 0,
+                "7d" => 2,
+                "14d" => 8,
+                _ => 4
+            };
+
+            var rawData = hive.Measurements
+                .Where(m => m.MeasurementDate >= from && m.MeasurementDate <= now)
+                .OrderBy(m => m.MeasurementDate)
+                .ToList();
+
+            List<HiveMeasurementPoint> chartData;
+
+            if (agg == 0)
+            {
+                // žádná agregace
+                chartData = rawData
+                    .Select(m => new HiveMeasurementPoint
+                    {
+                        Date = m.MeasurementDate,
+                        Weight = Math.Round(m.Weight, 2),
+                        Temperature = Math.Round(m.Temperature, 2)
+                    })
+                    .ToList();
+            }
+            else
+            {
+                chartData = rawData
+                    .GroupBy(m => new DateTime(
+                        m.MeasurementDate.Year,
+                        m.MeasurementDate.Month,
+                        m.MeasurementDate.Day,
+                        (m.MeasurementDate.Hour / agg) * agg, 0, 0)) // agregace po X hodinách
+                    .Select(g => new HiveMeasurementPoint
+                    {
+                        Date = g.Key,
+                        Weight = Math.Round(g.Average(x => x.Weight), 2),
+                        Temperature = Math.Round(g.Average(x => x.Temperature), 2)
+                    })
+                    .ToList();
+            }
+
+            var lastHiveMeasurement = rawData.LastOrDefault();
             var lastApiaryMeasurement = await _context.ApiaryMeasurements
                 .Where(a => a.ApiaryId == hive.ApiaryId)
                 .OrderByDescending(m => m.MeasurementDate)
@@ -167,31 +224,17 @@ namespace BeeApp.Web.Controllers
                 HiveId = hive.HiveId,
                 HiveName = hive.Name,
                 ApiaryName = hive.Apiary?.Name,
-                //TODO: ApiaryLocation = hive.Apiary?.Location ?? "(Unknown)",
-
                 LastHiveMeasurementDate = lastHiveMeasurement?.MeasurementDate,
                 LastWeight = lastHiveMeasurement?.Weight,
                 LastHiveTemp = lastHiveMeasurement?.Temperature,
-
                 LastApiaryMeasurementDate = lastApiaryMeasurement?.MeasurementDate,
                 LastApiaryTemp = lastApiaryMeasurement?.Temperature,
-                //TODO: LastApiaryPressure = lastApiaryMeasurement?.Pressure,
                 LastApiaryLight = lastApiaryMeasurement?.LightIntensity,
-
-                MeasurementsForChart = hive.Measurements
-                    .OrderByDescending(m => m.MeasurementDate)
-                    .Take(30)
-                    .ToList(),
-
-                ChartData = hive.Measurements
-                    .OrderBy(m => m.MeasurementDate)
-                    .Select(m => new HiveMeasurementPoint
-                    {
-                        Date = m.MeasurementDate,
-                        Weight = m.Weight,
-                        Temperature = m.Temperature
-                    })
-                    .ToList()
+                MeasurementsForChart = rawData, // nebo jen posledních 30?
+                ChartData = chartData,
+                CurrentRange = range,
+                CurrentAggregation = agg,
+                CurrentSmoothing = isSmoothing
             };
 
             return View(viewModel);
