@@ -1,0 +1,25 @@
+﻿@model List<BeeApp.Shared.ViewModels.HiveViewModel>
+
+<h1>Úly pro apiary: @Model.FirstOrDefault()?.ApiaryName</h1>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Hive name</th>
+            <th>Last measurement</th>
+            <th>Weight (kg)</th>
+            <th>Temperature (°C)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var hive in Model)
+        {
+            <tr>
+                <td>@hive.Name</td>
+                <td>@(hive.LastMeasurement?.ToString("g") ?? "–")</td>
+                <td>@(hive.LastWeight?.ToString("F1") ?? "–")</td>
+                <td>@(hive.LastTemperature?.ToString("F1") ?? "–")</td>
+            </tr>
+        }
+    </tbody>
+</table>

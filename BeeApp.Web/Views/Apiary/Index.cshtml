@@ -8,6 +8,7 @@
             <th>Name</th>
             <th>Amount of hives</th>
             <th>Last measurement</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -17,6 +18,9 @@
                 <td>@a.Name</td>
                 <td>@a.HiveCount</td>
                 <td>@a.LastMeasurement?.ToString("g") ?? "none"</td>
+                <td>
+                    <a asp-controller="Hive" asp-action="Index" asp-route-apiaryNumber="@a.ApiaryId">Show hives</a>
+                </td>
             </tr>
         }
     </tbody>
