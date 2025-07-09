@@ -2,6 +2,11 @@
 
 <h1>Apiaries</h1>
 
+<p>
+    <a asp-action="Create" class="btn btn-success">➕ Add Apiary</a>
+</p>
+
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -17,11 +22,12 @@
             <tr>
                 <td>@a.Name</td>
                 <td>@a.HiveCount</td>
-                <td>@a.LastMeasurement?.ToString("g") ?? "none"</td>
+                <td>@a.LastMeasurement?.ToString("g")</td>
                 <td>
-                    <a asp-controller="Hive" asp-action="Index" asp-route-apiaryNumber="@a.ApiaryId">Show hives</a>
+                    <a asp-controller="Hive" asp-action="Index" asp-route-apiaryId="@a.ApiaryId">Show hives</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+

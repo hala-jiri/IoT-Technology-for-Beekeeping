@@ -1,6 +1,10 @@
 ﻿@model List<BeeApp.Shared.ViewModels.HiveViewModel>
 
-<h1>Úly pro apiary: @Model.FirstOrDefault()?.ApiaryName</h1>
+<h1>Hives under apiary: @Model.FirstOrDefault()?.ApiaryName</h1>
+
+<p>
+    <a asp-action="Create" asp-route-apiaryId="@Model.FirstOrDefault()?.ApiaryId" class="btn btn-success">➕ Add hive</a>
+</p>
 
 <table class="table table-bordered">
     <thead>

@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace BeeApp.Shared.DTO
 {
-    public class ApiaryCreateDto
+    public class HiveCreateDto
     {
+        public int ApiaryId { get; set; }
+
         [Required]
         public string Name { get; set; }
     }

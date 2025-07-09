@@ -16,7 +16,7 @@ namespace BeeApp.Shared.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [ForeignKey("Hive")]
-        public int HiveNumber { get; set; }
+        public int HiveId { get; set; }
         public Hive Hive { get; set; }
 
         [Required]

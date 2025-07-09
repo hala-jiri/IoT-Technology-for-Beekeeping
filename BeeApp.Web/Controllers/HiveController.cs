@@ -1,4 +1,6 @@
 ﻿using BeeApp.Shared.Data;
+using BeeApp.Shared.DTO;
+using BeeApp.Shared.Models;
 using BeeApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,13 +16,16 @@ namespace BeeApp.Web.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(int apiaryNumber)
+        public async Task<IActionResult> Index(int apiaryId)
         {
             var hives = await _context.Hives
                 .Include(h => h.Apiary)
                 .Include(h => h.Measurements)
-                .Where(h => h.ApiaryId == apiaryNumber)
+                .Where(h => h.ApiaryId == apiaryId)
                 .ToListAsync();
+
+            // Get name of apiary
+            var apiary = await _context.Apiaries.FindAsync(apiaryId);
 
             var vm = hives.Select(h => new HiveViewModel
             {
@@ -33,7 +38,46 @@ namespace BeeApp.Web.Controllers
                 LastTemperature = h.Measurements.OrderByDescending(m => m.MeasurementDate).FirstOrDefault()?.Temperature
             }).ToList();
 
+            // Add apiary info to the empty hive list
+            if (!vm.Any() && apiary != null)
+            {
+                vm.Add(new HiveViewModel
+                {
+                    ApiaryId = apiary.ApiaryId,
+                    ApiaryName = apiary.Name
+                });
+            }
             return View(vm);
+        }
+
+        [HttpGet]
+        public IActionResult Create(int apiaryId)
+        {
+            var dto = new HiveCreateDto
+            {
+                ApiaryId = apiaryId
+            };
+
+            return View(dto);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(HiveCreateDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var hive = new Hive
+            {
+                Name = dto.Name,
+                ApiaryId = dto.ApiaryId
+            };
+
+            _context.Hives.Add(hive);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", new { apiaryId = dto.ApiaryId });
         }
     }
 }

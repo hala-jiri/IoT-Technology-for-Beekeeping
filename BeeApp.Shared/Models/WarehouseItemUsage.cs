@@ -17,7 +17,7 @@ namespace BeeApp.Shared.Models
         public int ItemId { get; set; }
         public WarehouseItem WarehouseItem { get; set; }
 
-        public int? HiveNumber { get; set; }
+        public int? HiveId { get; set; }
         public Hive? Hive { get; set; }
 
         public int QuantityUsed { get; set; }

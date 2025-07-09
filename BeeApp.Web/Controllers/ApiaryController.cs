@@ -1,4 +1,6 @@
 ﻿using BeeApp.Shared.Data;
+using BeeApp.Shared.DTO;
+using BeeApp.Shared.Models;
 using BeeApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +35,30 @@ namespace BeeApp.Web.Controllers
             }).ToList();
 
             return View(vm);
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(ApiaryCreateDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var apiary = new Apiary
+            {
+                Name = dto.Name
+            };
+
+            _context.Apiaries.Add(apiary);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }
