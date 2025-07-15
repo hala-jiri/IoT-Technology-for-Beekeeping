@@ -5,6 +5,7 @@ using BeeApp.Shared.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Text;
 
 namespace BeeApp.Web.Controllers
 {
@@ -246,6 +247,33 @@ namespace BeeApp.Web.Controllers
 
 
             return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Export(int id)
+        {
+            var hive = await _context.Hives
+                .Include(h => h.Measurements)
+                .FirstOrDefaultAsync(h => h.HiveId == id);
+
+            if (hive == null || hive.Measurements.Count == 0)
+                return NotFound("No measurements to export.");
+
+            var csvLines = new List<string>
+            {
+                "HiveId,Date,Weight,Temperature"
+            };
+
+            var fromDate = DateTime.Now.AddDays(-90);
+
+            foreach (var m in hive.Measurements.Where(m => m.MeasurementDate >= fromDate).OrderBy(m => m.MeasurementDate))
+            {
+                csvLines.Add($"{m.HiveId},{m.MeasurementDate:s},{m.Weight},{m.Temperature}");
+            }
+
+            var fileName = $"hive-{id}-export-{DateTime.Now:yyyyMMddHHmmss}.csv";
+            var fileBytes = Encoding.UTF8.GetBytes(string.Join("\n", csvLines));
+            return File(fileBytes, "text/csv", fileName);
         }
 
     }
