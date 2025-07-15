@@ -1,0 +1,61 @@
+﻿@model BeeApp.Shared.ViewModels.ExportDataRequestViewModel
+
+<h2>📤 Export Data</h2>
+
+<form asp-action="Export" method="post">
+
+    @foreach (var apiary in Model.AvailableApiaries)
+    {
+        <div class="border rounded p-3 mb-4">
+            <h4>@apiary.Name</h4>
+
+            <button type="button" class="btn btn-sm btn-outline-success mb-2 me-2" onclick="selectHives(@apiary.ApiaryId, true)">Select all</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary mb-2" onclick="selectHives(@apiary.ApiaryId, false)">Deselect all</button>
+
+            <div class="row">
+                @foreach (var hive in apiary.Hives)
+                {
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input hive-checkbox apiary-@apiary.ApiaryId" type="checkbox" name="SelectedHiveIds" value="@hive.HiveId" checked />
+                            <label class="form-check-label">@hive.Name</label>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="mb-3">
+        <label class="form-label">From:</label>
+        <input type="date" class="form-control" asp-for="From" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">To:</label>
+        <input type="date" class="form-control" asp-for="To" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Data to include:</label><br />
+        <div class="form-check">
+            <input type="checkbox" asp-for="IncludeMeasurements" class="form-check-input" />
+            <label class="form-check-label" asp-for="IncludeMeasurements">Measurements</label>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" asp-for="IncludeInspections" class="form-check-input" />
+            <label class="form-check-label" asp-for="IncludeInspections">Inspections</label>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">📥 Export ZIP</button>
+</form>
+
+@section Scripts {
+    <script>
+        function selectHives(apiaryId, check) {
+            const checkboxes = document.querySelectorAll(".apiary-" + apiaryId);
+            checkboxes.forEach(c => c.checked = check);
+        }
+    </script>
+}
