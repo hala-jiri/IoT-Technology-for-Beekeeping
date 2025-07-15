@@ -39,6 +39,9 @@ else
 {
     <p>No inspection yet.</p>
 }
+<a asp-controller="Inspection" asp-action="Index" asp-route-hiveId="@Model.HiveId" class="btn btn-outline-secondary">
+    🧾 Show all inspections
+</a>
 <p>
     <a asp-controller="Inspection" asp-action="Create" asp-route-hiveId="@Model.HiveId" class="btn btn-outline-success">➕ Add Inspection</a>
 </p>

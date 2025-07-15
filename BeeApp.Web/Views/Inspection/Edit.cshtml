@@ -1,0 +1,110 @@
+﻿@model BeeApp.Shared.DTO.InspectionEditDto
+
+<h2>✏️ Edit inspection</h2>
+
+<p><strong>Hive:</strong> @ViewBag.HiveName</p>
+<p><strong>Apiary:</strong> @ViewBag.ApiaryName</p>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="InspectionReportId" />
+    <input type="hidden" asp-for="HiveId" />
+
+    <div class="mb-3">
+        <label asp-for="InspectionDate" class="form-label">Date:</label>
+        <input asp-for="InspectionDate" class="form-control" type="datetime-local" />
+    </div>
+
+    <!-- Queen Seen -->
+    <div class="mb-3">
+        <label class="form-label">Queen seen</label><br />
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="QueenSeen" value="true" id="QueenSeenYes" @(Model.QueenSeen == true ? "checked" : "") />
+            <label class="form-check-label" for="QueenSeenYes">Yes</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="QueenSeen" value="" id="QueenSeenNotChecked" @(Model.QueenSeen == null ? "checked" : "") />
+            <label class="form-check-label" for="QueenSeenNotChecked">Not checked</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="QueenSeen" value="false" id="QueenSeenNo" @(Model.QueenSeen == false ? "checked" : "") />
+            <label class="form-check-label" for="QueenSeenNo">No</label>
+        </div>
+    </div>
+
+    <!-- Brood -->
+    <div class="mb-3">
+        <label class="form-label">Brood present</label><br />
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="BroodPresent" value="true" id="BroodYes" @(Model.BroodPresent == true ? "checked" : "") />
+            <label class="form-check-label" for="BroodYes">Yes</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="BroodPresent" value="" id="BroodNotChecked" @(Model.BroodPresent == null ? "checked" : "") />
+            <label class="form-check-label" for="BroodNotChecked">Not checked</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="BroodPresent" value="false" id="BroodNo" @(Model.BroodPresent == false ? "checked" : "") />
+            <label class="form-check-label" for="BroodNo">No</label>
+        </div>
+    </div>
+
+    <!-- Eggs -->
+    <div class="mb-3">
+        <label class="form-label">Eggs present</label><br />
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="EggsPresent" value="true" id="EggsYes" @(Model.EggsPresent == true ? "checked" : "") />
+            <label class="form-check-label" for="EggsYes">Yes</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="EggsPresent" value="" id="EggsNotChecked" @(Model.EggsPresent == null ? "checked" : "") />
+            <label class="form-check-label" for="EggsNotChecked">Not checked</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="EggsPresent" value="false" id="EggsNo" @(Model.EggsPresent == false ? "checked" : "") />
+            <label class="form-check-label" for="EggsNo">No</label>
+        </div>
+    </div>
+
+    <!-- Pollen -->
+    <div class="mb-3">
+        <label class="form-label">Pollen present</label><br />
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="PollenPresent" value="true" id="PollenYes" @(Model.PollenPresent == true ? "checked" : "") />
+            <label class="form-check-label" for="PollenYes">Yes</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="PollenPresent" value="" id="PollenNotChecked" @(Model.PollenPresent == null ? "checked" : "") />
+            <label class="form-check-label" for="PollenNotChecked">Not checked</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="PollenPresent" value="false" id="PollenNo" @(Model.PollenPresent == false ? "checked" : "") />
+            <label class="form-check-label" for="PollenNo">No</label>
+        </div>
+    </div>
+
+    <!-- Honey -->
+    <div class="mb-3">
+        <label class="form-label">Honey present</label><br />
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="HoneyPresent" value="true" id="HoneyYes" @(Model.HoneyPresent == true ? "checked" : "") />
+            <label class="form-check-label" for="HoneyYes">Yes</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="HoneyPresent" value="" id="HoneyNotChecked" @(Model.HoneyPresent == null ? "checked" : "") />
+            <label class="form-check-label" for="HoneyNotChecked">Not checked</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="HoneyPresent" value="false" id="HoneyNo" @(Model.HoneyPresent == false ? "checked" : "") />
+            <label class="form-check-label" for="HoneyNo">No</label>
+        </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="mb-3">
+        <label asp-for="Notes" class="form-label">Notes:</label>
+        <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">💾 Save changes</button>
+    <a asp-action="Index" asp-route-hiveId="@Model.HiveId" class="btn btn-secondary">Cancel</a>
+</form>

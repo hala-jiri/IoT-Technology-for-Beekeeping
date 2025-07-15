@@ -1,0 +1,50 @@
+﻿@model BeeApp.Shared.ViewModels.HiveInspectionListViewModel
+
+<h2>Inspections – Hive: @Model.HiveName</h2>
+<p><strong>Apiary:</strong> @Model.ApiaryName</p>
+
+<p>
+    <a asp-action="Create" asp-route-hiveId="@Model.HiveId" class="btn btn-success">➕ Add inspection</a>
+</p>
+
+@if (Model.Inspections.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Queen</th>
+                <th>Brood</th>
+                <th>Eggs</th>
+                <th>Pollen</th>
+                <th>Honey</th>
+                <th>Note</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var i in Model.Inspections)
+            {
+                <tr>
+                    <td>@i.InspectionDate.ToString("g")</td>
+                    <td>@(i.QueenSeen == true ? "✅" : i.QueenSeen == false ? "❌" : "–")</td>
+                    <td>@(i.BroodPresent == true ? "✅" : i.BroodPresent == false ? "❌" : "–")</td>
+                    <td>@(i.EggsPresent == true ? "✅" : i.EggsPresent == false ? "❌" : "–")</td>
+                    <td>@(i.PollenPresent == true ? "✅" : i.PollenPresent == false ? "❌" : "–")</td>
+                    <td>@(i.HoneyPresent == true ? "✅" : i.HoneyPresent == false ? "❌" : "–")</td>
+                    <td>@i.Notes</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@i.InspectionReportId" class="btn btn-sm btn-outline-primary">✏️ Edit</a>
+                        <a asp-action="Delete" asp-route-id="@i.InspectionReportId" class="btn btn-sm btn-outline-danger">🗑️ Delete</a>
+
+                        <!-- <a asp-action="Edit" asp-route-id="@i.InspectionReportId">✏️ Edit</a> -->
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No inspections available for this hive.</p>
+}
