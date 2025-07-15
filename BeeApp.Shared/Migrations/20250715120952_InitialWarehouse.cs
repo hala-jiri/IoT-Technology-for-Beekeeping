@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BeeApp.Shared.Migrations
 {
     /// <inheritdoc />
-    public partial class InitSchema : Migration
+    public partial class InitialWarehouse : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -67,15 +67,18 @@ namespace BeeApp.Shared.Migrations
                 name: "WarehouseItems",
                 columns: table => new
                 {
-                    ItemId = table.Column<int>(type: "int", nullable: false)
+                    WarehouseItemId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    QuantityInStock = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    LocationNote = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WarehouseItems", x => x.ItemId);
+                    table.PrimaryKey("PK_WarehouseItems", x => x.WarehouseItemId);
                 });
 
             migrationBuilder.CreateTable(
@@ -257,15 +260,15 @@ namespace BeeApp.Shared.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    HiveNumber = table.Column<int>(type: "int", nullable: false),
+                    HiveId = table.Column<int>(type: "int", nullable: false),
                     NoteText = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_HiveNotes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_HiveNotes_Hives_HiveNumber",
-                        column: x => x.HiveNumber,
+                        name: "FK_HiveNotes_Hives_HiveId",
+                        column: x => x.HiveId,
                         principalTable: "Hives",
                         principalColumn: "HiveId",
                         onDelete: ReferentialAction.Cascade);
@@ -275,20 +278,20 @@ namespace BeeApp.Shared.Migrations
                 name: "InspectionReports",
                 columns: table => new
                 {
-                    ReportId = table.Column<int>(type: "int", nullable: false)
+                    InspectionReportId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    InspectionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     HiveId = table.Column<int>(type: "int", nullable: false),
-                    QueenPresent = table.Column<bool>(type: "bit", nullable: true),
-                    SignsOfDisease = table.Column<bool>(type: "bit", nullable: true),
-                    AdequateFood = table.Column<bool>(type: "bit", nullable: true),
-                    HiveClean = table.Column<bool>(type: "bit", nullable: true),
-                    BroodPatternGood = table.Column<bool>(type: "bit", nullable: true),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    InspectionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    QueenSeen = table.Column<bool>(type: "bit", nullable: true),
+                    BroodPresent = table.Column<bool>(type: "bit", nullable: true),
+                    EggsPresent = table.Column<bool>(type: "bit", nullable: true),
+                    PollenPresent = table.Column<bool>(type: "bit", nullable: true),
+                    HoneyPresent = table.Column<bool>(type: "bit", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InspectionReports", x => x.ReportId);
+                    table.PrimaryKey("PK_InspectionReports", x => x.InspectionReportId);
                     table.ForeignKey(
                         name: "FK_InspectionReports_Hives_HiveId",
                         column: x => x.HiveId,
@@ -304,7 +307,6 @@ namespace BeeApp.Shared.Migrations
                     UsageId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ItemId = table.Column<int>(type: "int", nullable: false),
-                    HiveNumber = table.Column<int>(type: "int", nullable: true),
                     HiveId = table.Column<int>(type: "int", nullable: true),
                     QuantityUsed = table.Column<int>(type: "int", nullable: false),
                     UsedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -322,7 +324,7 @@ namespace BeeApp.Shared.Migrations
                         name: "FK_WarehouseItemUsages_WarehouseItems_ItemId",
                         column: x => x.ItemId,
                         principalTable: "WarehouseItems",
-                        principalColumn: "ItemId",
+                        principalColumn: "WarehouseItemId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -376,9 +378,9 @@ namespace BeeApp.Shared.Migrations
                 column: "HiveId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_HiveNotes_HiveNumber",
+                name: "IX_HiveNotes_HiveId",
                 table: "HiveNotes",
-                column: "HiveNumber");
+                column: "HiveId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Hives_ApiaryId",

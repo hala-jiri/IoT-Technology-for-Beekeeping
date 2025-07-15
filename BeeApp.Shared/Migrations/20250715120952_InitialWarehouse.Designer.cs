@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BeeApp.Shared.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250708162349_InitSchema")]
-    partial class InitSchema
+    [Migration("20250715120952_InitialWarehouse")]
+    partial class InitialWarehouse
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -134,7 +134,7 @@ namespace BeeApp.Shared.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("HiveNumber")
+                    b.Property<int>("HiveId")
                         .HasColumnType("int");
 
                     b.Property<string>("NoteText")
@@ -143,44 +143,45 @@ namespace BeeApp.Shared.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("HiveNumber");
+                    b.HasIndex("HiveId");
 
                     b.ToTable("HiveNotes");
                 });
 
             modelBuilder.Entity("BeeApp.Shared.Models.InspectionReport", b =>
                 {
-                    b.Property<int>("ReportId")
+                    b.Property<int>("InspectionReportId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InspectionReportId"));
 
-                    b.Property<bool?>("AdequateFood")
+                    b.Property<bool?>("BroodPresent")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("BroodPatternGood")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("HiveClean")
+                    b.Property<bool?>("EggsPresent")
                         .HasColumnType("bit");
 
                     b.Property<int>("HiveId")
                         .HasColumnType("int");
 
+                    b.Property<bool?>("HoneyPresent")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("InspectionDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Notes")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("QueenPresent")
+                    b.Property<bool?>("PollenPresent")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("SignsOfDisease")
+                    b.Property<bool?>("QueenSeen")
                         .HasColumnType("bit");
 
-                    b.HasKey("ReportId");
+                    b.HasKey("InspectionReportId");
 
                     b.HasIndex("HiveId");
 
@@ -189,23 +190,32 @@ namespace BeeApp.Shared.Migrations
 
             modelBuilder.Entity("BeeApp.Shared.Models.WarehouseItem", b =>
                 {
-                    b.Property<int>("ItemId")
+                    b.Property<int>("WarehouseItemId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ItemId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WarehouseItemId"));
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LocationNote")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("QuantityInStock")
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("ItemId");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("WarehouseItemId");
 
                     b.ToTable("WarehouseItems");
                 });
@@ -219,9 +229,6 @@ namespace BeeApp.Shared.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UsageId"));
 
                     b.Property<int?>("HiveId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("HiveNumber")
                         .HasColumnType("int");
 
                     b.Property<int>("ItemId")
@@ -485,7 +492,7 @@ namespace BeeApp.Shared.Migrations
                 {
                     b.HasOne("BeeApp.Shared.Models.Hive", "Hive")
                         .WithMany("Notes")
-                        .HasForeignKey("HiveNumber")
+                        .HasForeignKey("HiveId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -510,7 +517,7 @@ namespace BeeApp.Shared.Migrations
                         .HasForeignKey("HiveId");
 
                     b.HasOne("BeeApp.Shared.Models.WarehouseItem", "WarehouseItem")
-                        .WithMany("Usages")
+                        .WithMany()
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -585,11 +592,6 @@ namespace BeeApp.Shared.Migrations
                     b.Navigation("Measurements");
 
                     b.Navigation("Notes");
-                });
-
-            modelBuilder.Entity("BeeApp.Shared.Models.WarehouseItem", b =>
-                {
-                    b.Navigation("Usages");
                 });
 #pragma warning restore 612, 618
         }
