@@ -12,6 +12,10 @@ namespace BeeApp.Shared.ViewModels
         public string Name { get; set; }
         public int ApiaryId { get; set; }
         public string ApiaryName { get; set; }
+
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+
         public DateTime? LastMeasurement { get; set; }
         public double? LastWeight { get; set; }
         public double? LastTemperature { get; set; }

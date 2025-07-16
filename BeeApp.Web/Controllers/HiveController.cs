@@ -35,6 +35,8 @@ namespace BeeApp.Web.Controllers
                 Name = h.Name,
                 ApiaryId = h.ApiaryId,
                 ApiaryName = h.Apiary.Name,
+                Latitude = h.Apiary.Latitude,   //TODO: GPS doesn need to be under each hive, can be in ViewBags
+                Longitude = h.Apiary.Longitude,
                 LastMeasurement = h.Measurements.OrderByDescending(m => m.MeasurementDate).FirstOrDefault()?.MeasurementDate,
                 LastWeight = h.Measurements.OrderByDescending(m => m.MeasurementDate).FirstOrDefault()?.Weight,
                 LastTemperature = h.Measurements.OrderByDescending(m => m.MeasurementDate).FirstOrDefault()?.Temperature
@@ -49,8 +51,8 @@ namespace BeeApp.Web.Controllers
                     ApiaryName = apiary.Name
                 });
             }
-            ViewBag.Lat = apiary?.Latitude;
-            ViewBag.Lng = apiary?.Longitude;
+            //ViewBag.Lat = apiary?.Latitude;
+            //ViewBag.Lng = apiary?.Longitude;
             //TODO: Map doesnt load properly. Data are loaded properly, but JS didnt process it properly
 
             return View(vm);
