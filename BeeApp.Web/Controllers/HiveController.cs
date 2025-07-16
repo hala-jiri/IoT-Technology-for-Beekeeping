@@ -49,6 +49,10 @@ namespace BeeApp.Web.Controllers
                     ApiaryName = apiary.Name
                 });
             }
+            ViewBag.Lat = apiary?.Latitude;
+            ViewBag.Lng = apiary?.Longitude;
+            //TODO: Map doesnt load properly. Data are loaded properly, but JS didnt process it properly
+
             return View(vm);
         }
 

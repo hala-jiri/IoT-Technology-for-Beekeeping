@@ -70,7 +70,9 @@ namespace BeeApp.Web.Controllers
             var dto = new ApiaryUpdateDto
             {
                 ApiaryId = apiary.ApiaryId,
-                Name = apiary.Name
+                Name = apiary.Name,
+                Latitude = apiary.Latitude,
+                Longitude = apiary.Longitude
             };
 
             return View(dto);
@@ -86,6 +88,9 @@ namespace BeeApp.Web.Controllers
             if (apiary == null) return NotFound();
 
             apiary.Name = dto.Name;
+            apiary.Longitude = dto.Longitude;
+            apiary.Latitude = dto.Latitude;
+
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));

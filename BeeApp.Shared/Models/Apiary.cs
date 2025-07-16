@@ -16,5 +16,8 @@ namespace BeeApp.Shared.Models
 
         public List<Hive> Hives { get; set; } = new();
         public List<ApiaryMeasurement> Measurements { get; set; } = new();
+
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
     }
 }
