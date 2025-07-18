@@ -1,0 +1,146 @@
+﻿@model List<BeeApp.Shared.ViewModels.HiveMiniChartViewModel>
+
+@{
+    ViewData["Title"] = "Overview Dashboard";
+    string readableRange = Model.First().CurrentRange switch
+    {
+        "4h" => "4",
+        "8h" => "8",
+        "12h" => "12",
+        "24h" => "24",
+        _ => "24"
+    };
+}
+
+<h2>Hive Overview – Last @readableRange Hours</h2>
+
+<form method="get" asp-action="Index" class="mb-4">
+    <div class="row">
+        <div class="col-auto">
+            <label class="form-label">Time range:</label>
+            <select name="range" class="form-select" onchange="this.form.submit()">
+                <option value="4h" selected="@(Model.First().CurrentRange == "4h")">Last 4 hours</option>
+                <option value="8h" selected="@(Model.First().CurrentRange == "8h")">Last 8 hours</option>
+                <option value="12h" selected="@(Model.First().CurrentRange == "12h")">Last 12 hours</option>
+                <option value="24h" selected="@(Model.First().CurrentRange == "24h")">Last 24 hours</option>
+            </select>
+        </div>
+        <div class="col-auto align-self-end">
+            <div class="form-check">
+                <input type="hidden" id="smoothingValue" name="smoothing" value="@(Model.First().CurrentSmoothing.ToString().ToLower())" />
+                <input class="form-check-input" type="checkbox" id="smoothingToggle"
+                       @(Model.First().CurrentSmoothing ? "checked" : "") />
+                <label class="form-check-label" for="smoothingToggle">Smooth lines</label>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        var hive = Model[i];
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@hive.HiveName</h5>
+                    <p class="card-subtitle text-muted mb-2">@hive.ApiaryName</p>
+                    <canvas id="chart-@hive.HiveId" height="200"></canvas>
+                    <a asp-controller="Hive" asp-action="Detail" asp-route-id="@hive.HiveId" class="btn btn-sm btn-outline-primary mt-3">
+                        🔍 View Detail
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@* 
+    Code under was generated, NOT MY CODE!
+ *@
+ @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const hives = @Html.Raw(Json.Serialize(Model.Select(h => new {
+                id = h.HiveId,
+                labels = h.DataPoints.Select(p => p.Timestamp.ToString("yyyy-MM-dd HH:mm")),
+                temp = h.DataPoints.Select(p => p.Temperature),
+                weight = h.DataPoints.Select(p => p.Weight),
+                smoothing = h.CurrentSmoothing
+            })));
+
+            hives.forEach(hive => {
+                const ctx = document.getElementById("chart-" + hive.id).getContext("2d");
+                const tension = hive.smoothing ? 0.4 : 0;
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: hive.labels,
+                        datasets: [
+                            {
+                                label: "Temperature (°C)",
+                                data: hive.temp,
+                                borderColor: "red",
+                                yAxisID: "y1",
+                                tension: tension
+                            },
+                            {
+                                label: "Weight (kg)",
+                                data: hive.weight,
+                                borderColor: "blue",
+                                yAxisID: "y",
+                                tension: tension
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Weight (kg)'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                grid: {
+                                    drawOnChartArea: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Temperature (°C)'
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const smoothingToggle = document.getElementById("smoothingToggle");
+        const smoothingValue = document.getElementById("smoothingValue");
+
+        smoothingToggle.addEventListener("change", function () {
+            smoothingValue.value = this.checked;
+            this.form.submit();
+        });
+    });
+</script>
+}
