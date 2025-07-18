@@ -108,24 +108,38 @@ else
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('hiveChart').getContext('2d');
-        //const tensionValue = @(Model.CurrentSmoothing ? "0.4" : "0");
+
+        const labels = @Html.Raw(Json.Serialize(Model.ChartData.Select(d => d.Date.ToString("yyyy-MM-dd HH:mm"))));
+        const weightData = @Html.Raw(Json.Serialize(Model.ChartData.Select(d => d.Weight)));
+        const hiveTempData = @Html.Raw(Json.Serialize(Model.ChartData.Select(d => d.Temperature)));
+        const apiaryTempData = @Html.Raw(Json.Serialize(Model.ChartData.Select(d => d.ApiaryTemperature)));
+
+        const tensionValue = @(Model.CurrentSmoothing ? "0.4" : "0");
 
         const data = {
-            labels: @Html.Raw(Json.Serialize(Model.ChartData.Select(d => d.Date.ToString("yyyy-MM-dd HH:mm")))),
+            labels: labels,
             datasets: [
                 {
                     label: 'Weight (kg)',
-                    data: @Html.Raw(Json.Serialize(Model.ChartData.Select(d => d.Weight))),
+                    data: weightData,
                     borderColor: 'blue',
                     yAxisID: 'y',
-                    tension: @(Model.CurrentSmoothing ? "0.4" : "0")
+                    tension: tensionValue
                 },
                 {
-                    label: 'Temperature (°C)',
-                    data: @Html.Raw(Json.Serialize(Model.ChartData.Select(d => d.Temperature))),
+                    label: 'Hive Temperature (°C)',
+                    data: hiveTempData,
                     borderColor: 'red',
                     yAxisID: 'y1',
-                    tension: @(Model.CurrentSmoothing ? "0.4" : "0") // rounded sharp peaks
+                    tension: tensionValue
+                },
+                {
+                    label: 'Apiary Temperature (°C)',
+                    data: apiaryTempData,
+                    borderColor: 'green',
+                    borderDash: [5, 5],
+                    yAxisID: 'y1',
+                    tension: tensionValue
                 }
             ]
         };

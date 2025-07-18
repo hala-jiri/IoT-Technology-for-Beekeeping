@@ -40,5 +40,7 @@ namespace BeeApp.Shared.ViewModels
         public DateTime Date { get; set; }
         public double? Weight { get; set; }
         public double? Temperature { get; set; }
+
+        public double? ApiaryTemperature { get; set; }
     }
 }

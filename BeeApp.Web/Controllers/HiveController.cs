@@ -191,43 +191,67 @@ namespace BeeApp.Web.Controllers
                 .OrderBy(m => m.MeasurementDate)
                 .ToList();
 
+            var apiaryMeasurements = await _context.ApiaryMeasurements
+                .Where(a => a.ApiaryId == hive.ApiaryId && a.MeasurementDate >= from && a.MeasurementDate <= now)
+                .OrderBy(a => a.MeasurementDate)
+                .ToListAsync();
+
             List<HiveMeasurementPoint> chartData;
 
             if (agg == 0)
-            {
-                // žádná agregace
+            {   // no aggregation
                 chartData = rawData
-                    .Select(m => new HiveMeasurementPoint
+                    .Select(m =>
                     {
-                        Date = m.MeasurementDate,
-                        Weight = Math.Round(m.Weight, 2),
-                        Temperature = Math.Round(m.Temperature, 2)
+                        var match = apiaryMeasurements
+                            .Where(a => Math.Abs((a.MeasurementDate - m.MeasurementDate).TotalMinutes) < 10)
+                            .OrderBy(a => Math.Abs((a.MeasurementDate - m.MeasurementDate).TotalMinutes))
+                            .FirstOrDefault();
+
+                        return new HiveMeasurementPoint
+                        {
+                            Date = m.MeasurementDate,
+                            Weight = Math.Round(m.Weight, 2),
+                            Temperature = Math.Round(m.Temperature, 2),
+                            ApiaryTemperature = match != null ? Math.Round(match.Temperature, 2) : null
+                        };
                     })
                     .ToList();
             }
             else
-            {
+            {   // aggregation
                 chartData = rawData
                     .GroupBy(m => new DateTime(
                         m.MeasurementDate.Year,
                         m.MeasurementDate.Month,
                         m.MeasurementDate.Day,
-                        (m.MeasurementDate.Hour / agg) * agg, 0, 0)) // agregace po X hodinách
-                    .Select(g => new HiveMeasurementPoint
+                        (m.MeasurementDate.Hour / agg) * agg, 0, 0))
+                    .Select(g =>
                     {
-                        Date = g.Key,
-                        Weight = Math.Round(g.Average(x => x.Weight), 2),
-                        Temperature = Math.Round(g.Average(x => x.Temperature), 2)
+                        var midpoint = g.Key.AddHours(agg / 2.0);
+
+                        var match = apiaryMeasurements
+                            .Where(a => Math.Abs((a.MeasurementDate - midpoint).TotalMinutes) < agg * 30)
+                            .OrderBy(a => Math.Abs((a.MeasurementDate - midpoint).TotalMinutes))
+                            .FirstOrDefault();
+
+                        return new HiveMeasurementPoint
+                        {
+                            Date = g.Key,
+                            Weight = Math.Round(g.Average(x => x.Weight), 2),
+                            Temperature = Math.Round(g.Average(x => x.Temperature), 2),
+                            ApiaryTemperature = match != null ? Math.Round(match.Temperature, 2) : null
+                        };
                     })
                     .ToList();
             }
 
             var lastHiveMeasurement = rawData.LastOrDefault();
+
             var lastApiaryMeasurement = await _context.ApiaryMeasurements
                 .Where(a => a.ApiaryId == hive.ApiaryId)
                 .OrderByDescending(m => m.MeasurementDate)
                 .FirstOrDefaultAsync();
-
 
             var lastInspection = await _context.InspectionReports
                 .Where(r => r.HiveId == id)
@@ -238,7 +262,7 @@ namespace BeeApp.Web.Controllers
             {
                 HiveId = hive.HiveId,
                 HiveName = hive.Name,
-                ApiaryName = hive.Apiary?.Name,
+                ApiaryName = hive.Apiary?.Name ?? string.Empty,
                 LastHiveMeasurementDate = lastHiveMeasurement?.MeasurementDate,
                 LastWeight = lastHiveMeasurement?.Weight,
                 LastHiveTemp = lastHiveMeasurement?.Temperature,
@@ -252,7 +276,6 @@ namespace BeeApp.Web.Controllers
                 CurrentAggregation = agg,
                 CurrentSmoothing = isSmoothing
             };
-
 
             return View(viewModel);
         }
