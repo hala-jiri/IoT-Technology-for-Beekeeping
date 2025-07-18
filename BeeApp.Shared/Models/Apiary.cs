@@ -19,5 +19,8 @@ namespace BeeApp.Shared.Models
 
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
+
+        public string? ImageFileName { get; set; }  // Only name will be save
+
     }
 }

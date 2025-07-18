@@ -13,7 +13,12 @@
         <div id="apiary-map" style="height: 400px; width: 100%;"></div>
     </div>
 }
-
+@if (!string.IsNullOrEmpty(ViewBag.ApiaryImage))
+{
+    <div class="mb-3">
+        <img src="~/uploads/apiaries/@ViewBag.ApiaryImage" class="img-fluid rounded shadow" style="max-width: 500px;" />
+    </div>
+}
 
 <table class="table table-bordered">
     <thead>

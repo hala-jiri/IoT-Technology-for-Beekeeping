@@ -12,5 +12,7 @@ namespace BeeApp.Shared.ViewModels
         public string Name { get; set; }
         public int HiveCount { get; set; }
         public DateTime? LastMeasurement { get; set; }
+
+        public string? ImageFileName { get; set; }
     }
 }

@@ -1,14 +1,61 @@
 ﻿@model BeeApp.Shared.DTO.ApiaryCreateDto
 
-<h1>Add new apiary</h1>
+<h2>➕ Create Apiary</h2>
 
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label asp-for="Name"></label>
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Name:</label>
         <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Back</a>
+    <div class="mb-3">
+        <label asp-for="Latitude" class="form-label">Latitude:</label>
+        <input asp-for="Latitude" class="form-control" step="0.000001" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Longitude" class="form-label">Longitude:</label>
+        <input asp-for="Longitude" class="form-control" step="0.000001" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Select location on map:</label>
+        <div id="map" style="height: 400px;"></div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Upload image:</label>
+        <input type="file" name="imageFile" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">💾 Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const latInput = document.getElementById("Latitude");
+            const lngInput = document.getElementById("Longitude");
+
+            const lat = parseFloat(latInput.value) || 49.8;
+            const lng = parseFloat(lngInput.value) || 15.4;
+
+            const map = L.map("map").setView([lat, lng], 7);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+
+            marker.on("dragend", function () {
+                const pos = marker.getLatLng();
+                latInput.value = pos.lat.toFixed(6);
+                lngInput.value = pos.lng.toFixed(6);
+            });
+        });
+    </script>
+}

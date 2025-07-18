@@ -19,4 +19,8 @@
     <ProjectReference Include="..\BeeApp.Shared\BeeApp.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\apiaries\" />
+  </ItemGroup>
+
 </Project>
