@@ -52,6 +52,9 @@ namespace BeeApp.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ApiaryCreateDto dto, IFormFile? imageFile)
         {
+            ModelState.Remove("Latitude");  // need to be remove from modelstate as using two different cultures ( . and ,)
+            ModelState.Remove("Longitude");
+
             if (!ModelState.IsValid)
                 return View(dto);
 
@@ -61,6 +64,12 @@ namespace BeeApp.Web.Controllers
                 ImageFileName = dto.ImageFileName
             };
 
+
+            if (double.TryParse(Request.Form["Latitude"], NumberStyles.Float, CultureInfo.InvariantCulture, out var lat))
+                apiary.Latitude = lat;
+
+            if (double.TryParse(Request.Form["Longitude"], NumberStyles.Float, CultureInfo.InvariantCulture, out var lng))
+                apiary.Longitude = lng;
 
             if (imageFile != null && imageFile.Length > 0)
             {
@@ -85,7 +94,7 @@ namespace BeeApp.Web.Controllers
                 ApiaryId = apiary.ApiaryId,
                 Name = apiary.Name ?? string.Empty,
                 Latitude = apiary.Latitude,
-                Longitude = apiary.Longitude
+                Longitude = apiary.Longitude,
                 ImageFileName = apiary.ImageFileName,
             };
 
