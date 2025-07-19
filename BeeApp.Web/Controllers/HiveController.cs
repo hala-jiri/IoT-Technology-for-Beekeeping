@@ -53,8 +53,8 @@ namespace BeeApp.Web.Controllers
             }
             ViewBag.ApiaryImage = apiary?.ImageFileName;    //TODO: maybe set it up for "apiary model"
 
-            //ViewBag.Lat = apiary?.Latitude;
-            //ViewBag.Lng = apiary?.Longitude;
+            ViewBag.Lat = apiary?.Latitude;
+            ViewBag.Lng = apiary?.Longitude;
             //TODO: Map doesnt load properly. Data are loaded properly, but JS didnt process it properly
 
             return View(vm);
