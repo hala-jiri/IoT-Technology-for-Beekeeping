@@ -11,13 +11,18 @@
     <div class="d-flex gap-4 align-items-start mb-4">
         @if (!string.IsNullOrEmpty(ViewBag.ApiaryImage))
         {
-            <img src="~/uploads/apiaries/@ViewBag.ApiaryImage" class="img-thumbnail"
-                 style="max-height: 300px; object-fit: cover;" />
+            <div style="height: 300px; width: auto;">
+                <img src="~/uploads/apiaries/@ViewBag.ApiaryImage"
+                     class="rounded shadow"
+                     style="height: 100%; width: auto; object-fit: cover;" />
+            </div>
         }
 
         @if (ViewBag.Lat != null && ViewBag.Lng != null)
         {
-            <div id="apiary-map" style="height: 300px; width: 100%; max-width: 500px;" class="flex-shrink-0"></div>
+            <div id="apiary-map"
+                 style="height: 300px; width: 100%; max-width: 500px;"
+                 class="flex-shrink-0 rounded shadow"></div>
         }
     </div>
 }
