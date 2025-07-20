@@ -40,10 +40,44 @@ namespace BeeApp.Web.Services
                     var now = DateTime.Now;
 
                     // load data
-                    var hives = await _context.Hives.Include(h => h.Measurements).ToListAsync();
-                    var measurements = await _context.HiveMeasurements.ToListAsync();
-                    var inspections = await _context.InspectionReports.ToListAsync();
-                    var apiaries = await _context.Apiaries.ToListAsync();
+                    var hives = await _context.Hives
+                        .Select(h => new {
+                            h.HiveId,
+                            h.Name,
+                            h.ApiaryId
+                        }).ToListAsync();
+
+                    var measurements = await _context.HiveMeasurements
+                        .Select(m => new {
+                            m.HiveId,
+                            m.MeasurementDate,
+                            m.Weight,
+                            m.Temperature
+                        }).ToListAsync();
+
+                    var inspections = await _context.InspectionReports
+                        .Select(i => new {
+                            i.HiveId,
+                            i.InspectionDate,
+                            i.QueenSeen,
+                            i.Notes
+                        }).ToListAsync();
+
+                    var apiaries = await _context.Apiaries
+                        .Select(a => new
+                        {
+                            a.ApiaryId,
+                            a.Name,
+                            a.Latitude,
+                            a.Longitude,
+                            a.ImageFileName,
+                            Hives = a.Hives.Select(h => new
+                            {
+                                h.HiveId,
+                                h.Name
+                            }).ToList()
+                        })
+                        .ToListAsync();
 
                     // write to JSON files to ZIPu
                     AddJsonToZip(archive, "hives.json", hives);
