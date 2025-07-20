@@ -17,6 +17,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddControllersWithViews();
 // přidat do DI kontejneru:
 builder.Services.AddScoped<DataSeederService>();
+builder.Services.AddScoped<BackupService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 
 var app = builder.Build();
