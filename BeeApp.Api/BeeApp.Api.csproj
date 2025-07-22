@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BeeApp.Shared\BeeApp.Shared.csproj" />
+    <ProjectReference Include="..\BeeApp.Web\BeeApp.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
