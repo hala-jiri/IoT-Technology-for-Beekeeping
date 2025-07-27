@@ -25,8 +25,18 @@ namespace BeeApp.Web.Services
         {
             if (await _context.Apiaries.AnyAsync(a => a.Name.StartsWith("Fake Apiary")))
             {
-                _logger.LogInformation("Fake data already exists. Skipping seeding.");
-                return;
+                //TODO: temporary overwriting data
+                var hivesToDelete = await _context.Hives.ToListAsync();
+                _context.Hives.RemoveRange(hivesToDelete);
+
+                var apiariesToDelete = await _context.Apiaries.ToListAsync();
+                _context.Apiaries.RemoveRange(apiariesToDelete);
+
+                await _context.SaveChangesAsync();
+
+
+                //_logger.LogInformation("Fake data already exists. Skipping seeding.");
+                //return;
             }
 
             var apiaries = new List<Apiary>();
