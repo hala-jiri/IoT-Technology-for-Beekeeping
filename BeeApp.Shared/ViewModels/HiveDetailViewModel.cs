@@ -10,10 +10,10 @@ namespace BeeApp.Shared.ViewModels
     public class HiveDetailViewModel
     {
         public int HiveId { get; set; }
-        public string HiveName { get; set; }
+        public string HiveName { get; set; } = string.Empty;
 
-        public string ApiaryName { get; set; }
-        public string ApiaryLocation { get; set; } // For now text - later map
+        public string? ApiaryName { get; set; }
+        public string? ApiaryLocation { get; set; } // For now text - later map
 
         public DateTime? LastHiveMeasurementDate { get; set; }
         public double? LastWeight { get; set; }

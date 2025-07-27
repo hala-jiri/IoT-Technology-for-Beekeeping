@@ -26,7 +26,6 @@ namespace BeeApp.Web.Controllers
                 .Where(h => h.ApiaryId == apiaryId)
                 .ToListAsync();
 
-            // Get name of apiary
             var apiary = await _context.Apiaries.FindAsync(apiaryId);
 
             var vm = hives.Select(h => new HiveViewModel
@@ -35,7 +34,7 @@ namespace BeeApp.Web.Controllers
                 Name = h.Name,
                 ApiaryId = h.ApiaryId,
                 ApiaryName = h.Apiary.Name,
-                Latitude = h.Apiary.Latitude,   //TODO: GPS doesn need to be under each hive, can be in ViewBags
+                Latitude = h.Apiary.Latitude,
                 Longitude = h.Apiary.Longitude,
                 LastMeasurement = h.Measurements.OrderByDescending(m => m.MeasurementDate).FirstOrDefault()?.MeasurementDate,
                 LastWeight = h.Measurements.OrderByDescending(m => m.MeasurementDate).FirstOrDefault()?.Weight,

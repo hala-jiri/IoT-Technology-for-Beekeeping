@@ -81,8 +81,7 @@ else
     <input type="hidden" id="smoothingValue" name="smoothing" value="@(Model.CurrentSmoothing.ToString().ToLower())" />
 
     <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="smoothingToggle"
-               @(Model.CurrentSmoothing ? "checked" : "") />
+        <input class="form-check-input" type="checkbox" id="smoothingToggle" @(Model.CurrentSmoothing ? "checked" : "") />
         <label class="form-check-label" for="smoothingToggle">
             Smooth graph lines
         </label>

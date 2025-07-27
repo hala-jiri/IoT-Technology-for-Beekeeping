@@ -14,11 +14,11 @@ namespace BeeApp.Shared.Models
         public int HiveId { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [ForeignKey("Apiary")]
         public int ApiaryId { get; set; }
-        public Apiary Apiary { get; set; }
+        public Apiary Apiary { get; set; } = null!;
 
         public List<HiveMeasurement> Measurements { get; set; } = new();
         public List<InspectionReport> InspectionReports { get; set; } = new();
