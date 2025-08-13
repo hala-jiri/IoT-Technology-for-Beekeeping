@@ -23,5 +23,6 @@ namespace BeeApp.Shared.Models
         public List<HiveMeasurement> Measurements { get; set; } = new();
         public List<InspectionReport> InspectionReports { get; set; } = new();
         public List<HiveNote> Notes { get; set; } = new();
+        public List<HiveMilestone> Milestones { get; set; } = new();
     }
 }

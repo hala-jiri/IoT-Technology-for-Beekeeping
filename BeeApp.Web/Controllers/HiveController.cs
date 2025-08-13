@@ -54,7 +54,6 @@ namespace BeeApp.Web.Controllers
 
             ViewBag.Lat = apiary?.Latitude;
             ViewBag.Lng = apiary?.Longitude;
-            //TODO: Map doesnt load properly. Data are loaded properly, but JS didnt process it properly
 
             return View(vm);
         }
@@ -155,13 +154,15 @@ namespace BeeApp.Web.Controllers
             return RedirectToAction("Index", new { apiaryId });
         }
 
-        public async Task<IActionResult> Detail(int id, string range = "14d", int? aggregationHours = null, bool? smoothing = null)
+        public async Task<IActionResult> Detail(int id, string range = "14d", int? aggregationHours = null, bool? smoothing = null, bool? showMilestones = null)
         {
             bool isSmoothing = smoothing ?? true;
+            bool displayMilestones = showMilestones ?? true;
 
             var hive = await _context.Hives
                 .Include(h => h.Apiary)
                 .Include(h => h.Measurements)
+                .Include(h => h.Milestones)
                 .FirstOrDefaultAsync(h => h.HiveId == id);
 
             if (hive == null) return NotFound();
@@ -257,6 +258,10 @@ namespace BeeApp.Web.Controllers
                 .OrderByDescending(r => r.InspectionDate)
                 .FirstOrDefaultAsync();
 
+            var milestones = displayMilestones
+                ? hive.Milestones.Where(m => m.Date >= from && m.Date <= now).OrderBy(m => m.Date).ToList()
+                : new List<HiveMilestone>();
+
             var viewModel = new HiveDetailViewModel
             {
                 HiveId = hive.HiveId,
@@ -273,7 +278,9 @@ namespace BeeApp.Web.Controllers
                 ChartData = chartData,
                 CurrentRange = range,
                 CurrentAggregation = agg,
-                CurrentSmoothing = isSmoothing
+                CurrentSmoothing = isSmoothing,
+                Milestones = milestones,
+                ShowMilestones = displayMilestones
             };
 
             return View(viewModel);
@@ -305,6 +312,5 @@ namespace BeeApp.Web.Controllers
             var fileBytes = Encoding.UTF8.GetBytes(string.Join("\n", csvLines));
             return File(fileBytes, "text/csv", fileName);
         }
-
     }
 }

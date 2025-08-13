@@ -4,6 +4,7 @@ using BeeApp.Shared.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BeeApp.Shared.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250723230653_AddHiveMilestone")]
+    partial class AddHiveMilestone
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -181,9 +184,6 @@ namespace BeeApp.Shared.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("HiveId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("HiveMilestoneId");
@@ -561,7 +561,7 @@ namespace BeeApp.Shared.Migrations
             modelBuilder.Entity("BeeApp.Shared.Models.HiveMilestone", b =>
                 {
                     b.HasOne("BeeApp.Shared.Models.Hive", "Hive")
-                        .WithMany("Milestones")
+                        .WithMany()
                         .HasForeignKey("HiveId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -671,8 +671,6 @@ namespace BeeApp.Shared.Migrations
                     b.Navigation("InspectionReports");
 
                     b.Navigation("Measurements");
-
-                    b.Navigation("Milestones");
 
                     b.Navigation("Notes");
                 });

@@ -1,0 +1,37 @@
+﻿@model List<BeeApp.Shared.DTO.HiveMilestoneDto>
+@using BeeApp.Shared.Helpers
+@using BeeApp.Shared.Models
+
+<h2>📍 Hive Milestones</h2>
+<p>
+    <a asp-action="Create" asp-route-hiveId="@ViewBag.HiveId" class="btn btn-success">➕ Add Milestone</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Comment</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.Date.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@MilestoneHelper.GetIcon(m.Type) @m.Type</td>
+                <td>@m.Comment</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@m.HiveMilestoneId" class="btn btn-sm btn-warning">✏️ Edit</a>
+                    <a asp-action="Delete" asp-route-id="@m.HiveMilestoneId" class="btn btn-sm btn-danger">🗑️ Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p>
+    <a asp-controller="Hive" asp-action="Detail" asp-route-id="@ViewBag.HiveId" class="btn btn-outline-secondary">⬅️ Back to Hive Detail</a>
+</p>

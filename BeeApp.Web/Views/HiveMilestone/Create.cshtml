@@ -1,0 +1,179 @@
+﻿@model BeeApp.Shared.DTO.HiveMilestoneCreateDto
+@using BeeApp.Shared.Models
+@using BeeApp.Shared.Helpers
+@{
+    ViewData["Title"] = "Create Milestone";
+    var chartData = ViewBag.ChartData as List<BeeApp.Shared.ViewModels.HiveMeasurementPoint>;
+    var hiveName = ViewBag.HiveName as string;
+    var hiveId = (int)ViewBag.HiveId;
+    var selectedDate = ViewBag.SelectedDate as string;
+    var milestones = ViewBag.Milestones as List<HiveMilestone> ?? new();
+}
+
+<h2>Create Milestone for Hive: @hiveName</h2>
+
+<form method="get" asp-action="Create" class="mb-4">
+    <input type="hidden" name="hiveId" value="@hiveId" />
+    <div class="row">
+        <div class="col-md-4">
+            <label for="date" class="form-label">Select Date:</label>
+            <input type="date" class="form-control form-control-sm w-75" id="date" name="date" value="@selectedDate" onchange="this.form.submit()" />
+        </div>
+    </div>
+</form>
+
+<form asp-action="Create" method="post">
+    <input type="hidden" asp-for="HiveId" />
+    <input type="hidden" asp-for="Date" value="@DateOnly.Parse(selectedDate).ToDateTime(TimeOnly.MinValue)" />
+
+    <div class="row mb-3">
+        <!-- Levý sloupec -->
+        <div class="col-md-4">
+            <label asp-for="Time" class="form-label">Time:</label>
+            <input asp-for="Time" class="form-control form-control-sm w-75" type="time" step="60" />
+        </div>
+
+        <!-- Prostřední sloupec -->
+        <div class="col-md-4">
+            <label class="form-label">Milestone Type:</label>
+            @foreach (MilestoneType type in Enum.GetValues(typeof(MilestoneType)))
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="Type" id="@type" value="@type" @(Model.Type == type ? "checked" : "") />
+                    <label class="form-check-label" for="@type">
+                        @MilestoneHelper.GetIcon(type) @type
+                    </label>
+                </div>
+            }
+        </div>
+
+        <!-- Pravý sloupec -->
+        <div class="col-md-4">
+            <label asp-for="Comment" class="form-label">Comment:</label>
+            <textarea asp-for="Comment" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12 text-end">
+            <button type="submit" class="btn btn-success me-2">💾 Save milestone</button>
+            <a asp-action="Index" asp-route-hiveId="@hiveId" class="btn btn-secondary">↩️ Back to list</a>
+        </div>
+    </div>
+</form>
+
+<hr />
+
+<canvas id="hiveChart" width="800" height="400"></canvas>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
+
+    <script>
+        const ctx = document.getElementById('hiveChart').getContext('2d');
+
+        const labels = @Html.Raw(Json.Serialize(chartData.Select(d => d.Date.ToString("o"))));
+        const weightData = @Html.Raw(Json.Serialize(chartData.Select(d => d.Weight)));
+        const hiveTempData = @Html.Raw(Json.Serialize(chartData.Select(d => d.Temperature)));
+        const apiaryTempData = @Html.Raw(Json.Serialize(chartData.Select(d => d.ApiaryTemperature)));
+
+        const milestoneAnnotations = @Html.Raw(Json.Serialize(milestones.Select(m => new {
+            type = "line",
+            scaleID = "x",
+            value = m.Date.ToString("o"),
+            borderColor = "orange",
+            borderWidth = 2,
+            label = new {
+                content = m.Comment,
+                enabled = true,
+                position = "start"
+            }
+        })));
+
+        const config = {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Weight (kg)',
+                        data: weightData,
+                        borderColor: 'blue',
+                        yAxisID: 'y',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Hive Temperature (°C)',
+                        data: hiveTempData,
+                        borderColor: 'red',
+                        yAxisID: 'y1',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Apiary Temperature (°C)',
+                        data: apiaryTempData,
+                        borderColor: 'green',
+                        borderDash: [5, 5],
+                        yAxisID: 'y1',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                stacked: false,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'hour',
+                            tooltipFormat: 'yyyy-MM-dd HH:mm',
+                            displayFormats: {
+                                hour: 'HH:mm'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Date/Time'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Weight (kg)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Temperature (°C)'
+                        }
+                    }
+                },
+                plugins: {
+                    annotation: {
+                        annotations: milestoneAnnotations
+                    }
+                }
+            },
+            plugins: [Chart.registry.getPlugin('annotation')]
+        };
+
+        new Chart(ctx, config);
+    </script>
+}
