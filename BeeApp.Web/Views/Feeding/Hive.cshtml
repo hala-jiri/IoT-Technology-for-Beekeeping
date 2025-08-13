@@ -1,0 +1,178 @@
+﻿@using BeeApp.Shared.Models
+@model BeeApp.Shared.ViewModels.HiveFeedingIndexViewModel
+@{
+    ViewData["Title"] = $"Feeding – {Model.HiveName} ({Model.SeasonYear})";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (TempData["Msg"] != null)
+{
+    <div class="alert alert-success">@TempData["Msg"]</div>
+}
+
+<div class="row g-3 mb-3">
+    <div class="col-md-3">
+        <div class="card p-3">
+            <div class="fw-bold">Sirup</div>
+            <div>@Model.Summary.TotalSyrupLiters L</div>
+            @if (Model.Summary.TargetSyrupLiters.HasValue)
+            {
+                <div class="small text-muted">cíl: @Model.Summary.TargetSyrupLiters L</div>
+                <div class="progress mt-2">
+                    <div class="progress-bar" role="progressbar" style="width:@(Model.Summary.SyrupProgressPct ?? 0)%">
+                        @(Model.Summary.SyrupProgressPct ?? 0)%
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3">
+            <div class="fw-bold">Těsto</div>
+            <div>@Model.Summary.TotalPattyGrams g</div>
+            @if (Model.Summary.TargetPattyGrams.HasValue)
+            {
+                <div class="small text-muted">cíl: @Model.Summary.TargetPattyGrams g</div>
+                <div class="progress mt-2">
+                    <div class="progress-bar" role="progressbar" style="width:@(Model.Summary.PattyProgressPct ?? 0)%">
+                        @(Model.Summary.PattyProgressPct ?? 0)%
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3">
+            <div class="fw-bold">Poslední krmení</div>
+            <div>@(Model.Summary.LastFedAt?.ToString("yyyy-MM-dd") ?? "—")</div>
+            <div class="small text-muted">záznamů: @Model.Summary.EventsCount</div>
+        </div>
+    </div>
+</div>
+
+<a class="btn btn-outline-secondary mb-3"
+   asp-controller="Feeding" asp-action="Plan"
+   asp-route-hiveId="@Model.HiveId" asp-route-seasonYear="@Model.SeasonYear">
+    Nastavit cíl
+</a>
+
+<h4>Rychlé přidání</h4>
+<form asp-action="QuickAdd" asp-controller="Feeding" method="post" class="row gy-2 gx-3 align-items-end">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="seasonYear" value="@Model.SeasonYear" />
+    <input type="hidden" name="HiveId" value="@Model.HiveId" />
+
+    <div class="col-md-2">
+        <label class="form-label">Datum</label>
+        <input name="Date" class="form-control" type="date" value="@Model.QuickAdd.Date.ToString("yyyy-MM-dd")" />
+        <span class="text-danger" data-valmsg-for="Date"></span>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Typ</label>
+        <select name="Medium" class="form-select" id="mediumSelect">
+            @{
+                var isSyrup = Model.QuickAdd.Medium == FeedingMedium.Syrup;
+            }
+            @if (isSyrup)
+            {
+                <option value="0" selected>Sirup</option>
+                <option value="1">Těsto</option>
+            }
+            else
+            {
+                <option value="0">Sirup</option>
+                <option value="1" selected>Těsto</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Množství</label>
+        <input name="Quantity" class="form-control" type="number" step="0.1" value="@Model.QuickAdd.Quantity" />
+        <span class="text-danger" data-valmsg-for="Quantity"></span>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Jednotka</label>
+        <input id="unitDisplay" class="form-control" value="@(Model.QuickAdd.Medium == FeedingMedium.Syrup ? "L" : "g")" disabled />
+        <input type="hidden" id="UnitHidden" name="Unit" value="@((int)Model.QuickAdd.Unit)" />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Poměr (sirup)</label>
+        <input name="SyrupRatio" class="form-control" placeholder="např. 3:2" value="@Model.QuickAdd.SyrupRatio" />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Přísady</label>
+        <input name="Additives" class="form-control" placeholder="Invertofix…" value="@Model.QuickAdd.Additives" />
+    </div>
+
+    <div class="col-12">
+        <label class="form-label">Poznámka</label>
+        <input name="Note" class="form-control" value="@Model.QuickAdd.Note" />
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Uložit</button>
+    </div>
+</form>
+
+<hr />
+
+<h4>Záznamy</h4>
+<table class="table table-sm align-middle">
+    <thead>
+        <tr>
+            <th>Datum</th>
+            <th>Typ</th>
+            <th>Množství</th>
+            <th>Poměr</th>
+            <th>Přísady</th>
+            <th>Poznámka</th>
+            <th style="width:120px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var e in Model.Events)
+        {
+            <tr>
+                <td>@e.Date.ToString("yyyy-MM-dd")</td>
+                <td>@(e.Medium == FeedingMedium.Syrup ? "Sirup" : "Těsto")</td>
+                <td>@e.Quantity @((e.Unit == FeedingUnit.Liter) ? "L" : "g")</td>
+                <td>@e.SyrupRatio</td>
+                <td>@e.Additives</td>
+                <td>@e.Note</td>
+                <td class="text-end">
+                    <a asp-controller="Feeding" asp-action="Edit" asp-route-id="@e.Id" asp-route-seasonYear="@Model.SeasonYear" class="btn btn-sm btn-outline-secondary">Upravit</a>
+                    <form asp-controller="Feeding" asp-action="Delete" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@e.Id" />
+                        <input type="hidden" name="hiveId" value="@Model.HiveId" />
+                        <input type="hidden" name="seasonYear" value="@Model.SeasonYear" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Smazat záznam?')">Smazat</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@* TODO: NOT MY CODE, GENERATED BY AI*@
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const mediumSelect = document.getElementById('mediumSelect');
+        const unitDisplay  = document.getElementById('unitDisplay');
+        const unitHidden   = document.getElementById('UnitHidden');
+
+        function syncUnit() {
+            if (mediumSelect.value === '0') { unitDisplay.value = 'L'; unitHidden.value = '0'; }
+            else { unitDisplay.value = 'g'; unitHidden.value = '1'; }
+        }
+        mediumSelect.addEventListener('change', syncUnit);
+        syncUnit();
+    </script>
+}

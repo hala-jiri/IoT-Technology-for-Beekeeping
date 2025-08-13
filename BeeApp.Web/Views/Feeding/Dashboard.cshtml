@@ -1,0 +1,72 @@
+﻿@model BeeApp.Shared.ViewModels.FeedingDashboardViewModel
+@{
+    ViewData["Title"] = "Feeding – Dashboard";
+}
+
+<h2>@ViewData["Title"] (@Model.SeasonYear)</h2>
+
+<form method="get" class="row gy-2 gx-3 align-items-end mb-3">
+    <div class="col-md-2">
+        <label class="form-label">Rok</label>
+        <input name="seasonYear" value="@Model.SeasonYear" class="form-control" type="number" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Včelnice (ID)</label>
+        <input name="apiaryId" value="@(Model.ApiaryId?.ToString() ?? "")" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Od</label>
+        <input name="from" value="@(Model.From?.ToString("yyyy-MM-dd") ?? "")" class="form-control" type="date" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Do</label>
+        <input name="to" value="@(Model.To?.ToString("yyyy-MM-dd") ?? "")" class="form-control" type="date" />
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary">Filtrovat</button>
+    </div>
+</form>
+
+<div class="alert alert-info">
+    <strong>Součet:</strong> Sirup: @Model.TotalSyrupLiters L &nbsp;|&nbsp; Těsto: @Model.TotalPattyGrams g
+</div>
+
+<table class="table table-striped table-sm align-middle">
+    <thead>
+        <tr>
+            <th>Úl</th>
+            <th class="text-end">Sirup [L]</th>
+            <th class="text-end">% cíle</th>
+            <th class="text-end">Těsto [g]</th>
+            <th class="text-end">% cíle</th>
+            <th>Poslední krmení</th>
+            <th class="text-end">Záznamů</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var h in Model.Hives)
+        {
+            var syrupPct = h.SyrupProgressPct?.ToString("0.0") ?? "—";
+            var pattyPct = h.PattyProgressPct?.ToString("0.0") ?? "—";
+            <tr>
+                <td>@h.HiveName</td>
+                <td class="text-end">@h.TotalSyrupLiters</td>
+                <td class="text-end">@syrupPct%</td>
+                <td class="text-end">@h.TotalPattyGrams</td>
+                <td class="text-end">@pattyPct%</td>
+                <td>@(h.LastFedAt?.ToString("yyyy-MM-dd") ?? "—")</td>
+                <td class="text-end">@h.EventsCount</td>
+                <td>
+                    <a class="btn btn-sm btn-outline-primary"
+                       asp-controller="Feeding"
+                       asp-action="Hive"
+                       asp-route-hiveId="@h.HiveId"
+                       asp-route-seasonYear="@Model.SeasonYear">
+                        Detail
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

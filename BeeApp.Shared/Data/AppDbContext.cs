@@ -19,6 +19,8 @@ namespace BeeApp.Shared.Data
         public DbSet<WarehouseItemUsage> WarehouseItemUsages { get; set; }
         public DbSet<Backup> Backups { get; set; }
         public DbSet<HiveMilestone> HiveMilestones { get; set; }
+        public DbSet<FeedingEvent> FeedingEvents { get; set; }
+        public DbSet<FeedingPlan> FeedingPlans { get; set; }
 
     }
 }

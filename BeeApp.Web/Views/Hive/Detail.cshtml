@@ -47,6 +47,15 @@ else
     <a asp-controller="Inspection" asp-action="Create" asp-route-hiveId="@Model.HiveId" class="btn btn-outline-success">➕ Add Inspection</a>
 </p>
 
+<a class="btn btn-outline-primary"
+   asp-controller="Feeding"
+   asp-action="Hive"
+   asp-route-hiveId="@Model.HiveId"
+   asp-route-seasonYear="@DateTime.UtcNow.Year">
+    Feeding
+</a>
+
+
 <a asp-controller="HiveMilestone" asp-action="Index" asp-route-hiveId="@Model.HiveId" class="btn btn-outline-secondary">📍 Milestones</a>
 
 <hr />

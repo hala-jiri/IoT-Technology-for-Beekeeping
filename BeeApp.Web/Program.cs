@@ -2,7 +2,9 @@
 using BeeApp.Web.Data;
 using BeeApp.Web.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +21,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<DataSeederService>();
 builder.Services.AddScoped<BackupService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IFeedingService, FeedingService>();
 
 var app = builder.Build();
 
@@ -33,6 +36,15 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+var supportedCultures = new[] { new CultureInfo("cs-CZ"), new CultureInfo("en-US") };
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("cs-CZ"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+});
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
