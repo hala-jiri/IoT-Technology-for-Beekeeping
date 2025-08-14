@@ -254,6 +254,47 @@ namespace BeeApp.Web.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task UpsertPlansBulkAsync(int seasonYear, IEnumerable<FeedingPlanBulkUpsertDto.Item> items)
+        {
+            if (seasonYear <= 0) throw new ArgumentOutOfRangeException(nameof(seasonYear));
+
+            var list = items.Where(i => i.Selected).ToList();
+            if (list.Count == 0) return;
+
+            var hiveIds = list.Select(i => i.HiveId).Distinct().ToList();
+
+            // stáhnout existující plány pro dané úly/rok
+            var existing = await _context.FeedingPlans
+                .Where(p => p.SeasonYear == seasonYear && hiveIds.Contains(p.HiveId))
+                .ToListAsync();
+
+            var byHive = existing.ToDictionary(p => p.HiveId);
+
+            var toAdd = new List<FeedingPlan>();
+
+            foreach (var i in list)
+            {
+                if (!byHive.TryGetValue(i.HiveId, out var plan))
+                {
+                    plan = new FeedingPlan
+                    {
+                        HiveId = i.HiveId,
+                        SeasonYear = seasonYear
+                    };
+                    toAdd.Add(plan);
+                    byHive[i.HiveId] = plan;
+                }
+
+                plan.TargetSyrupLiters = i.TargetSyrupLiters;
+                plan.TargetPattyGrams = i.TargetPattyGrams;
+                plan.From = i.From != null ? DateOnly.FromDateTime(i.From.Value) : null;
+                plan.To = i.To != null ? DateOnly.FromDateTime(i.To.Value) : null;
+            }
+
+            if (toAdd.Count > 0) _context.FeedingPlans.AddRange(toAdd);
+            await _context.SaveChangesAsync();
+        }
+
         private sealed class FeedAggRow
         {
             public int HiveId { get; set; }

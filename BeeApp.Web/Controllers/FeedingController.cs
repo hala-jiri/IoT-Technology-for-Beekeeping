@@ -192,5 +192,66 @@ namespace BeeApp.Web.Controllers
             TempData["Msg"] = "Cíl krmení uložen.";
             return RedirectToAction(nameof(Hive), new { hiveId = dto.HiveId, seasonYear = dto.SeasonYear });
         }
+
+        // GET: Výběr více úlů + předvyplněné hodnoty (pokud plán existuje)
+        [HttpGet("Plan/Multiple")]
+        public async Task<IActionResult> PlanMultiple([FromQuery] int? apiaryId, [FromQuery] int? seasonYear)
+        {
+            var year = seasonYear ?? DateTime.UtcNow.Year;
+
+            // Úly podle filtru včelnice
+            var hives = await _context.Hives
+                .AsNoTracking()
+                .Where(h => !apiaryId.HasValue || h.ApiaryId == apiaryId.Value)
+                .OrderBy(h => h.Name)
+                .Select(h => new { h.HiveId, h.Name })
+                .ToListAsync();
+
+            // existující plány pro daný rok
+            var plans = await _context.FeedingPlans
+                .AsNoTracking()
+                .Where(p => p.SeasonYear == year && hives.Select(x => x.HiveId).Contains(p.HiveId))
+                .ToListAsync();
+            var planByHive = plans.ToDictionary(p => p.HiveId);
+
+            var vm = new FeedingPlanBulkUpsertDto
+            {
+                SeasonYear = year,
+                ApiaryId = apiaryId,
+                Items = hives.Select(h =>
+                {
+                    planByHive.TryGetValue(h.HiveId, out var p);
+                    return new FeedingPlanBulkUpsertDto.Item
+                    {
+                        Selected = false,
+                        HiveId = h.HiveId,
+                        HiveName = h.Name,
+                        TargetSyrupLiters = p?.TargetSyrupLiters,
+                        TargetPattyGrams = p?.TargetPattyGrams,
+                        From = p?.From?.ToDateTime(TimeOnly.MinValue),
+                        To = p?.To?.ToDateTime(TimeOnly.MinValue)
+                    };
+                }).ToList()
+            };
+
+            return View("PlanMultiple", vm);
+        }
+
+        // POST: Uložit hromadně vybrané řádky
+        [HttpPost("Plan/Multiple")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PlanMultipleSave(FeedingPlanBulkUpsertDto dto)
+        {
+            var selected = dto.Items?.Where(x => x.Selected).ToList() ?? new List<FeedingPlanBulkUpsertDto.Item>();
+            if (!selected.Any())
+            {
+                ModelState.AddModelError("", "Vyber alespoň jeden úl.");
+                return View("PlanMultiple", dto);
+            }
+
+            await _service.UpsertPlansBulkAsync(dto.SeasonYear, selected);
+            TempData["Msg"] = "Cíle uloženy pro vybrané úly.";
+            return RedirectToAction(nameof(Dashboard), new { apiaryId = dto.ApiaryId, seasonYear = dto.SeasonYear });
+        }
     }
 }

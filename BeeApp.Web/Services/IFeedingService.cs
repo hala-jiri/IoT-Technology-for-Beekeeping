@@ -15,5 +15,8 @@ namespace BeeApp.Web.Services
 
         Task<FeedingPlan?> GetPlanAsync(int hiveId, int seasonYear);
         Task UpsertPlanAsync(FeedingPlanUpsertDto dto);
+
+        Task UpsertPlansBulkAsync(int seasonYear, IEnumerable<FeedingPlanBulkUpsertDto.Item> items);
+
     }
 }

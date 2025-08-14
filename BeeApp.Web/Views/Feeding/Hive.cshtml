@@ -57,6 +57,12 @@
     Nastavit cíl
 </a>
 
+<a class="btn btn-outline-secondary mb-3"
+   asp-controller="Feeding" asp-action="PlanMultiple"
+   asp-route-seasonYear="@Model.SeasonYear">
+    Nastavit cíle (více úlů)
+</a>
+
 <h4>Rychlé přidání</h4>
 <form asp-action="QuickAdd" asp-controller="Feeding" method="post" class="row gy-2 gx-3 align-items-end">
     @Html.AntiForgeryToken()

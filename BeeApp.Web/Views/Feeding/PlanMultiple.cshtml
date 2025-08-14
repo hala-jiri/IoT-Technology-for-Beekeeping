@@ -1,0 +1,141 @@
+﻿@model BeeApp.Shared.DTO.FeedingPlanBulkUpsertDto
+@{
+    ViewData["Title"] = "Cíle krmení – více úlů";
+}
+
+<h2>@ViewData["Title"] (@Model.SeasonYear)</h2>
+
+@if (TempData["Msg"] != null)
+{
+    <div class="alert alert-success">@TempData["Msg"]</div>
+}
+
+<form method="get" class="row gy-2 gx-3 align-items-end mb-3">
+    <div class="col-md-2">
+        <label class="form-label">Rok</label>
+        <input name="seasonYear" class="form-control" type="number" value="@Model.SeasonYear" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Včelnice (ID)</label>
+        <input name="apiaryId" class="form-control" value="@(Model.ApiaryId?.ToString() ?? "")" />
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-secondary">Filtrovat</button>
+        <a class="btn btn-secondary" asp-controller="Feeding" asp-action="Dashboard" asp-route-apiaryId="@Model.ApiaryId" asp-route-seasonYear="@Model.SeasonYear">Zpět na dashboard</a>
+    </div>
+</form>
+
+<form asp-action="PlanMultipleSave" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="SeasonYear" />
+    <input type="hidden" asp-for="ApiaryId" />
+
+    <div class="card mb-3">
+        <div class="card-body row g-2 align-items-end">
+            <div class="col-auto">
+                <label class="form-label">Nastavit vybraným:</label>
+            </div>
+            <div class="col-md-3">
+                <input id="bulkSyrup" class="form-control" type="number" step="0.1" placeholder="Sirup L (např. 15)" />
+            </div>
+            <div class="col-md-3">
+                <input id="bulkPatty" class="form-control" type="number" step="1" placeholder="Těsto g (např. 2000)" />
+            </div>
+            <div class="col-md-2">
+                <input id="bulkFrom" class="form-control" type="date" placeholder="Od" />
+            </div>
+            <div class="col-md-2">
+                <input id="bulkTo" class="form-control" type="date" placeholder="Do" />
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-outline-primary" type="button" id="applyBulk">Použít na vybrané</button>
+            </div>
+            <div class="col-auto">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="toggleAll" />
+                    <label class="form-check-label" for="toggleAll">Vybrat vše</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div asp-validation-summary="All" class="text-danger mb-2"></div>
+
+    <table class="table table-sm align-middle">
+        <thead>
+            <tr>
+                <th style="width:40px;"></th>
+                <th>Úl</th>
+                <th class="text-end" style="width:180px;">Sirup (L)</th>
+                <th class="text-end" style="width:180px;">Těsto (g)</th>
+                <th style="width:220px;">Okno (od–do)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Items.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <input type="hidden" name="Items[@i].HiveId" value="@Model.Items[i].HiveId" />
+                        <input type="hidden" name="Items[@i].HiveName" value="@Model.Items[i].HiveName" />
+                        <input class="form-check-input row-select" type="checkbox" name="Items[@i].Selected" value="true" />
+                    </td>
+                    <td>@Model.Items[i].HiveName</td>
+                    <td class="text-end">
+                        <input class="form-control text-end syrup-input" name="Items[@i].TargetSyrupLiters" type="number" step="0.1"
+                               value="@(Model.Items[i].TargetSyrupLiters?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")" />
+                    </td>
+                    <td class="text-end">
+                        <input class="form-control text-end patty-input" name="Items[@i].TargetPattyGrams" type="number" step="1"
+                               value="@(Model.Items[i].TargetPattyGrams?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")" />
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <input class="form-control from-input"
+                                   name="Items[@i].From" type="date"
+                                   value="@(Model.Items[i].From?.ToString("yyyy-MM-dd") ?? "")" />
+                            <input class="form-control to-input"
+                                   name="Items[@i].To" type="date"
+                                   value="@(Model.Items[i].To?.ToString("yyyy-MM-dd") ?? "")" />
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        <button class="btn btn-primary">Uložit vybrané</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        const toggleAll = document.getElementById('toggleAll');
+        const applyBulk = document.getElementById('applyBulk');
+        const tbody = document.querySelector('tbody');
+
+        // Vybrat/odznačit všechny v tabulce (jen tbody)
+        toggleAll?.addEventListener('change', () => {
+          tbody.querySelectorAll('.row-select').forEach(cb => cb.checked = toggleAll.checked);
+        });
+
+        // Hromadné nastavení hodnot do zaškrtnutých řádků
+        applyBulk?.addEventListener('click', () => {
+          const s = document.getElementById('bulkSyrup')?.value ?? '';
+          const p = document.getElementById('bulkPatty')?.value ?? '';
+          const f = document.getElementById('bulkFrom')?.value ?? '';
+          const t = document.getElementById('bulkTo')?.value ?? '';
+
+          tbody.querySelectorAll('tr').forEach(row => {
+            const cb = row.querySelector('.row-select');
+            if (!cb || !cb.checked) return;
+
+            if (s !== '') { const el = row.querySelector('.syrup-input'); if (el) el.value = s; }
+            if (p !== '') { const el = row.querySelector('.patty-input'); if (el) el.value = p; }
+            if (f !== '') { const el = row.querySelector('.from-input');  if (el) el.value = f; }
+            if (t !== '') { const el = row.querySelector('.to-input');    if (el) el.value = t; }
+          });
+        });
+    </script>
+}

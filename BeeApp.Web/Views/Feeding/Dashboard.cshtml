@@ -27,6 +27,12 @@
     </div>
 </form>
 
+<a class="btn btn-outline-secondary mb-3"
+   asp-controller="Feeding" asp-action="PlanMultiple"
+   asp-route-apiaryId="@Model.ApiaryId" asp-route-seasonYear="@Model.SeasonYear">
+    Nastavit cíle (více úlů)
+</a>
+
 <div class="alert alert-info">
     <strong>Součet:</strong> Sirup: @Model.TotalSyrupLiters L &nbsp;|&nbsp; Těsto: @Model.TotalPattyGrams g
 </div>
