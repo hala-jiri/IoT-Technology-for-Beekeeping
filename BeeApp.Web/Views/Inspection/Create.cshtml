@@ -1,114 +1,201 @@
 ﻿@model BeeApp.Shared.DTO.InspectionCreateDto
 
-<h2>➕ New inspection</h2>
+@{
+    ViewData["Title"] = "New inspection";
+}
 
-<p><strong>Hive:</strong> @ViewBag.HiveName</p>
-<p><strong>Apiary:</strong> @ViewBag.ApiaryName</p>
+<style>
+    .subtitle {
+        color: #6c757d;
+        font-size: .9rem;
+    }
 
-<form asp-action="Create" method="post">
-    <input type="hidden" asp-for="HiveId" />
+    .card-clean {
+        border: 1px solid rgba(0,0,0,.08);
+        border-radius: .75rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,.04);
+    }
 
-    <div class="mb-3">
-        <label asp-for="InspectionDate" class="form-label">Date:</label>
-        <input asp-for="InspectionDate" class="form-control" type="datetime-local" />
+    .tri-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .75rem 1.5rem;
+    }
+
+    .tri {
+        display: flex;
+        align-items-center;
+        gap: .35rem;
+    }
+</style>
+
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-1">➕ New inspection</h2>
+        <div class="subtitle">
+            <strong>Hive:</strong> @ViewBag.HiveName
+            · <strong>Apiary:</strong> @ViewBag.ApiaryName
+        </div>
     </div>
-
-    <!-- Queen Seen -->
-    <div class="mb-3">
-        <label class="form-label">Queen seen</label><br />
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="QueenSeen" value="true" id="QueenSeenYes" />
-            <label class="form-check-label" for="QueenSeenYes">Yes</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="QueenSeen" value="" id="QueenSeenNotChecked" checked />
-            <label class="form-check-label" for="QueenSeenNotChecked">Not checked</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="QueenSeen" value="false" id="QueenSeenNo" />
-            <label class="form-check-label" for="QueenSeenNo">No</label>
-        </div>
-        
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-controller="Hive" asp-action="Detail" asp-route-id="@Model.HiveId" class="btn btn-outline-primary">← Back to hive</a>
     </div>
+</div>
 
-    <!-- Brood -->
-    <div class="mb-3">
-        <label class="form-label">Brood present</label><br />
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="BroodPresent" value="true" id="BroodYes" />
-            <label class="form-check-label" for="BroodYes">Yes</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="BroodPresent" value="" id="BroodNotChecked" checked />
-            <label class="form-check-label" for="BroodNotChecked">Not checked</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="BroodPresent" value="false" id="BroodNo" />
-            <label class="form-check-label" for="BroodNo">No</label>
-        </div>
-        
+<div class="card card-clean">
+    <div class="card-body">
+        <form asp-action="Create" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="HiveId" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="col-12 col-md-6">
+                <label asp-for="InspectionDate" class="form-label">Date & time</label>
+                <input asp-for="InspectionDate" class="form-control" type="datetime-local" />
+                <span class="subtitle">Tip: leave default to use current time.</span>
+            </div>
+
+            <div class="col-12">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <span class="subtitle me-2">Quick presets:</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-preset="nc">All “Not checked”</button>
+                    <button type="button" class="btn btn-sm btn-outline-success" data-preset="yes">All “Yes”</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-preset="no">All “No”</button>
+                </div>
+            </div>
+
+            <!-- Queen -->
+            <div class="col-12">
+                <label class="form-label fw-semibold">Queen seen</label>
+                <div class="tri-row">
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="QueenSeen" value="true" id="QueenSeenYes" />
+                        <span>Yes</span>
+                    </label>
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="QueenSeen" value="" id="QueenSeenNC" checked />
+                        <span>Not checked</span>
+                    </label>
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="QueenSeen" value="false" id="QueenSeenNo" />
+                        <span>No</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Brood -->
+            <div class="col-12">
+                <label class="form-label fw-semibold">Brood present</label>
+                <div class="tri-row">
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="BroodPresent" value="true" id="BroodYes" />
+                        <span>Yes</span>
+                    </label>
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="BroodPresent" value="" id="BroodNC" checked />
+                        <span>Not checked</span>
+                    </label>
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="BroodPresent" value="false" id="BroodNo" />
+                        <span>No</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Eggs -->
+            <div class="col-12">
+                <label class="form-label fw-semibold">Eggs present</label>
+                <div class="tri-row">
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="EggsPresent" value="true" id="EggsYes" />
+                        <span>Yes</span>
+                    </label>
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="EggsPresent" value="" id="EggsNC" checked />
+                        <span>Not checked</span>
+                    </label>
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="EggsPresent" value="false" id="EggsNo" />
+                        <span>No</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Pollen -->
+            <div class="col-12">
+                <label class="form-label fw-semibold">Pollen present</label>
+                <div class="tri-row">
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="PollenPresent" value="true" id="PollenYes" />
+                        <span>Yes</span>
+                    </label>
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="PollenPresent" value="" id="PollenNC" checked />
+                        <span>Not checked</span>
+                    </label>
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="PollenPresent" value="false" id="PollenNo" />
+                        <span>No</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Honey -->
+            <div class="col-12">
+                <label class="form-label fw-semibold">Honey present</label>
+                <div class="tri-row">
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="HoneyPresent" value="true" id="HoneyYes" />
+                        <span>Yes</span>
+                    </label>
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="HoneyPresent" value="" id="HoneyNC" checked />
+                        <span>Not checked</span>
+                    </label>
+                    <label class="tri">
+                        <input class="form-check-input" type="radio" name="HoneyPresent" value="false" id="HoneyNo" />
+                        <span>No</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="col-12">
+                <label asp-for="Notes" class="form-label">Notes</label>
+                <textarea asp-for="Notes" class="form-control" rows="4" placeholder="Optional notes..."></textarea>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">💾 Save</button>
+                <a asp-controller="Hive" asp-action="Detail" asp-route-id="@Model.HiveId" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
+</div>
 
-    <!-- Eggs -->
-    <div class="mb-3">
-        <label class="form-label">Eggs present</label><br />
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="EggsPresent" value="true" id="EggsYes" />
-            <label class="form-check-label" for="EggsYes">Yes</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="EggsPresent" value="" id="EggsNotChecked" checked />
-            <label class="form-check-label" for="EggsNotChecked">Not checked</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="EggsPresent" value="false" id="EggsNo" />
-            <label class="form-check-label" for="EggsNo">No</label>
-        </div>
-        
-    </div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // tri-state helpers
+        function setTri(name, val) {
+            // val: 'yes' -> true, 'no' -> false, 'nc' -> ''
+            const yes = document.querySelector(`input[name="${name}"][value="true"]`);
+            const no  = document.querySelector(`input[name="${name}"][value="false"]`);
+            const nc  = document.querySelector(`input[name="${name}"][value=""]`);
+            if (!yes || !no || !nc) return;
 
-    <!-- Pollen -->
-    <div class="mb-3">
-        <label class="form-label">Pollen present</label><br />
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="PollenPresent" value="true" id="PollenYes" />
-            <label class="form-check-label" for="PollenYes">Yes</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="PollenPresent" value="" id="PollenNotChecked" checked />
-            <label class="form-check-label" for="PollenNotChecked">Not checked</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="PollenPresent" value="false" id="PollenNo" />
-            <label class="form-check-label" for="PollenNo">No</label>
-        </div>
-        
-    </div>
+            if (val === 'yes')      yes.checked = true;
+            else if (val === 'no')  no.checked  = true;
+            else                    nc.checked  = true; // not checked
+        }
 
-    <!-- Honey -->
-    <div class="mb-3">
-        <label class="form-label">Honey present</label><br />
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="HoneyPresent" value="true" id="HoneyYes" />
-            <label class="form-check-label" for="HoneyYes">Yes</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="HoneyPresent" value="" id="HoneyNotChecked" checked />
-            <label class="form-check-label" for="HoneyNotChecked">Not checked</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="HoneyPresent" value="false" id="HoneyNo" />
-            <label class="form-check-label" for="HoneyNo">No</label>
-        </div>
-        
-    </div>
-
-    <!-- Notes -->
-    <div class="mb-3">
-        <label asp-for="Notes" class="form-label">Notes:</label>
-        <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
-    </div>
-
-    <button type="submit" class="btn btn-primary">💾 Save</button>
-    <a asp-controller="Hive" asp-action="Detail" asp-route-id="@Model.HiveId" class="btn btn-secondary">Cancel</a>
-</form>
+        // quick presets
+        document.querySelectorAll('[data-preset]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.getAttribute('data-preset'); // yes / no / nc
+                ['QueenSeen','BroodPresent','EggsPresent','PollenPresent','HoneyPresent'].forEach(n => setTri(n, mode));
+            });
+        });
+    </script>
+}

@@ -1,77 +1,151 @@
 ﻿@model List<BeeApp.Shared.ViewModels.HiveViewModel>
 
-<h1>Hives under apiary: @Model.FirstOrDefault()?.ApiaryName</h1>
+@{
+    var apiaryName = Model?.FirstOrDefault()?.ApiaryName ?? "Apiary";
+    var apiaryId = Model?.FirstOrDefault()?.ApiaryId ?? (int?)ViewBag.ApiaryId ?? 0;
+    var totalHives = Model?.Count ?? 0;
 
-<p>
-    <a asp-action="Create" asp-route-apiaryId="@Model.FirstOrDefault()?.ApiaryId" class="btn btn-success">➕ Add hive</a>
-</p>
+    bool hasImg = !string.IsNullOrEmpty(ViewBag.ApiaryImage as string);
+    bool hasCoords = ViewBag.Lat != null && ViewBag.Lng != null;
+}
 
-@if (ViewBag.Lat != null && ViewBag.Lng != null || !string.IsNullOrEmpty(ViewBag.ApiaryImage))
-{
-    <div class="d-flex gap-4 align-items-start mb-4">
-        @if (!string.IsNullOrEmpty(ViewBag.ApiaryImage))
-        {
-            <div style="height: 300px; width: auto;">
-                <img src="~/uploads/apiaries/@ViewBag.ApiaryImage"
-                     class="rounded shadow"
-                     style="height: 100%; width: auto; object-fit: cover;" />
-            </div>
+<style>
+    .subtitle {
+        color: #6c757d;
+        font-size: .9rem;
+    }
+
+    .toolbar {
+        border: 1px solid rgba(0,0,0,.08);
+        border-radius: .75rem;
+        background: #fff;
+        padding: .75rem 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,.04);
+    }
+
+    .hive-card {
+        border: 1px solid rgba(0,0,0,.08);
+        border-radius: .75rem;
+    }
+
+        .hive-card .card-body {
+            padding: 1rem;
         }
 
-        @if (ViewBag.Lat != null && ViewBag.Lng != null)
+    .media-card {
+        border: 1px solid rgba(0,0,0,.08);
+        border-radius: .75rem;
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,.04);
+    }
+</style>
+
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-1">Hives – @apiaryName</h2>
+        <div class="subtitle">Total hives: @totalHives</div>
+    </div>
+
+    <div class="toolbar d-flex flex-wrap align-items-center gap-2 mb-0">
+        <a asp-action="Create" asp-route-apiaryId="@apiaryId" class="btn btn-success">➕ Add hive</a>
+        <a asp-controller="Feeding" asp-action="Dashboard" asp-route-apiaryId="@apiaryId" asp-route-seasonYear="@DateTime.UtcNow.Year" class="btn btn-outline-secondary">🍯 Feeding</a>
+        <a asp-controller="Feeding" asp-action="PlanMultiple" asp-route-apiaryId="@apiaryId" asp-route-seasonYear="@DateTime.UtcNow.Year" class="btn btn-outline-secondary">🗂️ Set feeding goals</a>
+        <a asp-controller="Apiary" asp-action="Index" class="btn btn-outline-primary">← Back to Apiaries</a>
+    </div>
+</div>
+
+@if (hasImg || hasCoords)
+{
+    <div class="row g-3 mb-4">
+        @if (hasImg)
         {
-            <div id="apiary-map"
-                 style="height: 300px; width: 100%; max-width: 500px;"
-                 class="flex-shrink-0 rounded shadow"></div>
+            <div class="col-12 col-md-6">
+                <div class="media-card p-2 h-100">
+                    <img src="~/uploads/apiaries/@ViewBag.ApiaryImage"
+                         class="rounded w-100"
+                         style="height:300px; object-fit:cover;" alt="Apiary photo" />
+                </div>
+            </div>
+        }
+        @if (hasCoords)
+        {
+            <div class="col-12 col-md-6">
+                <div class="media-card p-2 h-100">
+                    <div id="apiary-map" class="rounded" style="height:300px; width:100%;"></div>
+                </div>
+            </div>
         }
     </div>
 }
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Hive name</th>
-            <th>Last measurement</th>
-            <th>Weight (kg)</th>
-            <th>Temperature (°C)</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
+@if (Model == null || Model.Count == 0)
+{
+    <div class="alert alert-info">
+        No hives in this apiary yet.
+        <a asp-action="Create" asp-route-apiaryId="@apiaryId" class="alert-link">Create one</a>.
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         @foreach (var hive in Model)
         {
-            <tr>
-                <td>@hive.Name</td>
-                <td>@(hive.LastMeasurement?.ToString("g") ?? "–")</td>
-                <td>@(hive.LastWeight?.ToString("F1") ?? "–")</td>
-                <td>@(hive.LastTemperature?.ToString("F1") ?? "–")</td>
-                <td>
-                    <a asp-action="Detail" asp-route-id="@hive.HiveId" class="btn btn-link">🔍 Detail</a>
-                    <a asp-action="Edit" asp-route-id="@hive.HiveId">✏️ Edit</a>
-                    <a asp-action="Delete" asp-route-id="@hive.HiveId" class="text-danger">🗑️ Delete</a>
+            var hasData = hive.LastMeasurement.HasValue;
+            <div class="col">
+                <div class="card hive-card shadow-sm h-100">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex align-items-baseline justify-content-between mb-1">
+                            <h5 class="card-title mb-0">@hive.Name</h5>
+                            <a asp-action="Detail" asp-route-id="@hive.HiveId" class="btn btn-sm btn-outline-primary">🔍 Detail</a>
+                        </div>
 
-                </td>
-            </tr>
+                        <div class="subtitle mb-2">
+                            Last measurement: @(hive.LastMeasurement?.ToString("yyyy-MM-dd HH:mm") ?? "—")
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="subtitle">Weight</div>
+                                <div class="fw-bold">@((hive.LastWeight?.ToString("F1") ?? "—")) kg</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="subtitle">Temp</div>
+                                <div class="fw-bold">@((hive.LastTemperature?.ToString("F1") ?? "—")) °C</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto d-flex flex-wrap gap-2 pt-3">
+                            <a asp-controller="Feeding" asp-action="Hive" asp-route-hiveId="@hive.HiveId" asp-route-seasonYear="@DateTime.UtcNow.Year" class="btn btn-sm btn-outline-secondary">🍯 Feeding</a>
+                            <a asp-controller="Inspection" asp-action="Index" asp-route-hiveId="@hive.HiveId" class="btn btn-sm btn-outline-secondary">🧾 Inspections</a>
+                            <a asp-action="Edit" asp-route-id="@hive.HiveId" class="btn btn-sm btn-outline-warning">✏️ Edit</a>
+                            <a asp-action="Delete" asp-route-id="@hive.HiveId" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete hive &quot;@hive.Name&quot;?');">🗑️ Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+}
 
-@* TODO: NOT MY CODE, GENERATED BY AI  - ADD JS*@
+@* Map *@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const lat = parseFloat("@ViewBag.Lat".replace(',', '.'));
-        const lng = parseFloat("@ViewBag.Lng".replace(',', '.'));
+        const latStr = "@(ViewBag.Lat ?? "")".toString();
+        const lngStr = "@(ViewBag.Lng ?? "")".toString();
+
+        const lat = parseFloat(latStr.replace(',', '.'));
+        const lng = parseFloat(lngStr.replace(',', '.'));
 
         if (!isNaN(lat) && !isNaN(lng)) {
             const map = L.map("apiary-map").setView([lat, lng], 12);
             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                attribution: '&copy; OpenStreetMap'
+                attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
             L.marker([lat, lng]).addTo(map);
 
-            setTimeout(() => map.invalidateSize(), 300); // 💡 fix pro šedou mapu
+            setTimeout(() => map.invalidateSize(), 300);
         }
     });
 </script>

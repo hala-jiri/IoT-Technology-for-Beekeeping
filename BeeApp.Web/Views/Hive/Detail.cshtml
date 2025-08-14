@@ -1,114 +1,190 @@
 ﻿@model BeeApp.Shared.ViewModels.HiveDetailViewModel
 @using BeeApp.Shared.Helpers
+
 @{
     var aggregationOptions = new List<int> { 0, 1, 2, 4, 8 };
+    string RangeBtn(string key) => Model.CurrentRange == key ? "btn-primary" : "btn-outline-primary";
 }
 
-<h2>Hive: @Model.HiveName</h2>
-<p><strong>Apiary:</strong> @Model.ApiaryName (@Model.ApiaryLocation)</p> <!-- TODO: make location working -->
+<style>
+    /* jemné sjednocení vzhledu karet */
+    .kpi-card {
+        border: 1px solid rgba(0,0,0,.08);
+        border-radius: .75rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,.04);
+    }
 
-<hr />
-<h4>📍 Last measurement of apiary:</h4>
-<ul>
-    <li><strong>Time:</strong> @Model.LastApiaryMeasurementDate?.ToString("g")</li>
-    <li><strong>Temperature:</strong> @Model.LastApiaryTemp?.ToString("F2") °C</li>
-    <!--<li><strong>Tlak:</strong> @Model.LastApiaryPressure hPa</li> -->
-    <li><strong>Light intensity:</strong> @Model.LastApiaryLight lx</li>
-</ul>
+    .kpi-title {
+        font-size: .9rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: .02em;
+    }
 
-<h4>📊 Last measurement of hive:</h4>
-<ul>
-    <li><strong>Time:</strong> @Model.LastHiveMeasurementDate?.ToString("g")</li>
-    <li><strong>Weight:</strong> @Model.LastWeight?.ToString("F2") kg</li>
-    <li><strong>Temperature:</strong> @Model.LastHiveTemp?.ToString("F2") °C</li>
-</ul>
+    .kpi-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
 
-<h4>🧪 Last inspection</h4>
-@if (Model.LastInspection != null)
-{
-    <ul>
-        <li><strong>Date:</strong> @Model.LastInspection.InspectionDate.ToString("g")</li>
-        <li><strong>Queen seen:</strong> @(Model.LastInspection.QueenSeen == true ? "✅ Yes" : Model.LastInspection.QueenSeen == false ? "❌ No" : "–")</li>
-        <li><strong>Brood:</strong> @(Model.LastInspection.BroodPresent == true ? "✅" : Model.LastInspection.BroodPresent == false ? "❌" : "–")</li>
-        <li><strong>Eggs:</strong> @(Model.LastInspection.EggsPresent == true ? "✅" : Model.LastInspection.EggsPresent == false ? "❌" : "–")</li>
-        <li><strong>Pollen:</strong> @(Model.LastInspection.PollenPresent == true ? "✅" : Model.LastInspection.PollenPresent == false ? "❌" : "–")</li>
-        <li><strong>Honey:</strong> @(Model.LastInspection.HoneyPresent == true ? "✅" : Model.LastInspection.HoneyPresent == false ? "❌" : "–")</li>
-        <li><strong>Note:</strong> @Model.LastInspection.Notes</li>
-    </ul>
-}
-else
-{
-    <p>No inspection yet.</p>
-}
-<a asp-controller="Inspection" asp-action="Index" asp-route-hiveId="@Model.HiveId" class="btn btn-outline-secondary">
-    🧾 Show all inspections
-</a>
-<p>
-    <a asp-controller="Inspection" asp-action="Create" asp-route-hiveId="@Model.HiveId" class="btn btn-outline-success">➕ Add Inspection</a>
-</p>
+    .kpi-sub {
+        color: #6c757d;
+        font-size: .85rem;
+    }
+</style>
 
-<a class="btn btn-outline-primary"
-   asp-controller="Feeding"
-   asp-action="Hive"
-   asp-route-hiveId="@Model.HiveId"
-   asp-route-seasonYear="@DateTime.UtcNow.Year">
-    Feeding
-</a>
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-1">Hive: @Model.HiveName</h2>
+        <div class="text-muted">
+            <strong>Apiary:</strong> @Model.ApiaryName
+            @if (!string.IsNullOrWhiteSpace(Model.ApiaryLocation))
+            {
+                <span>(@Model.ApiaryLocation)</span>
+            }
+        </div>
+    </div>
 
-
-<a asp-controller="HiveMilestone" asp-action="Index" asp-route-hiveId="@Model.HiveId" class="btn btn-outline-secondary">📍 Milestones</a>
-
-<hr />
-<h4>Data Chart</h4>
-<div class="btn-group mb-3" role="group">
-    <a asp-action="Detail" asp-route-id="@Model.HiveId" asp-route-range="1D" asp-route-aggregationHours="@Model.CurrentAggregation" class="btn @(Model.CurrentRange == "1D" ? "btn-primary" : "btn-outline-primary")">Today</a>
-    <a asp-action="Detail" asp-route-id="@Model.HiveId" asp-route-range="24h" asp-route-aggregationHours="@Model.CurrentAggregation" class="btn @(Model.CurrentRange == "24h" ? "btn-primary" : "btn-outline-primary")">Last 24h</a>
-    <a asp-action="Detail" asp-route-id="@Model.HiveId" asp-route-range="7d" asp-route-aggregationHours="@Model.CurrentAggregation" class="btn @(Model.CurrentRange == "7d" ? "btn-primary" : "btn-outline-primary")">Last 7 days</a>
-    <a asp-action="Detail" asp-route-id="@Model.HiveId" asp-route-range="14d" asp-route-aggregationHours="@Model.CurrentAggregation" class="btn @(Model.CurrentRange == "14d" ? "btn-primary" : "btn-outline-primary")">Last 14 days</a>
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-controller="Inspection" asp-action="Create" asp-route-hiveId="@Model.HiveId" class="btn btn-success">➕ Add Inspection</a>
+        <a asp-controller="Inspection" asp-action="Index" asp-route-hiveId="@Model.HiveId" class="btn btn-outline-secondary">🧾 Inspections</a>
+        <a class="btn btn-outline-primary"
+           asp-controller="Feeding" asp-action="Hive"
+           asp-route-hiveId="@Model.HiveId" asp-route-seasonYear="@DateTime.UtcNow.Year">
+            🍯 Feeding
+        </a>
+        <a asp-controller="HiveMilestone" asp-action="Index" asp-route-hiveId="@Model.HiveId" class="btn btn-outline-secondary">📍 Milestones</a>
+    </div>
 </div>
 
-<form method="get" asp-action="Detail" class="mb-3">
-    <input type="hidden" name="id" value="@Model.HiveId" />
-    <input type="hidden" name="range" value="@Model.CurrentRange" />
-    <input type="hidden" name="smoothing" value="@Model.CurrentSmoothing" />
-    <input type="hidden" name="showMilestones" value="@Model.ShowMilestones" />
-
-    <label for="aggregationHours" class="form-label">Aggregation interval:</label>
-    <select class="form-select d-inline w-auto" name="aggregationHours" onchange="this.form.submit()">
-        @foreach (var agg in aggregationOptions)
-        {
-            <option value="@agg" selected="@(Model.CurrentAggregation == agg)">@agg hour@(agg == 1 ? "" : "s")</option>
-        }
-    </select>
-</form>
-
-<form id="smoothingForm" method="get" asp-action="Detail" class="mb-3">
-    <input type="hidden" name="id" value="@Model.HiveId" />
-    <input type="hidden" name="range" value="@Model.CurrentRange" />
-    <input type="hidden" name="aggregationHours" value="@Model.CurrentAggregation" />
-    <input type="hidden" id="smoothingValue" name="smoothing" value="@(Model.CurrentSmoothing.ToString().ToLower())" />
-    <input type="hidden" id="milestonesValue" name="showMilestones" value="@(Model.ShowMilestones.ToString().ToLower())" />
-
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="smoothingToggle" @(Model.CurrentSmoothing ? "checked" : "") />
-        <label class="form-check-label" for="smoothingToggle">
-            Smooth graph lines
-        </label>
+<!-- KPI cards -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+        <div class="kpi-card p-3 h-100">
+            <div class="kpi-title mb-2">Last Hive Measurement</div>
+            <div class="kpi-value mb-1">
+                @(Model.LastWeight?.ToString("F2") ?? "—") <span class="kpi-sub">kg</span>
+            </div>
+            <div class="d-flex justify-content-between kpi-sub">
+                <span>Temp: @(Model.LastHiveTemp?.ToString("F2") ?? "—") °C</span>
+                <span>@(Model.LastHiveMeasurementDate?.ToString("yyyy-MM-dd HH:mm") ?? "—")</span>
+            </div>
+        </div>
     </div>
 
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="milestoneToggle" @(Model.ShowMilestones ? "checked" : "") />
-        <label class="form-check-label" for="milestoneToggle">
-            Show milestones
-        </label>
+    <div class="col-12 col-md-4">
+        <div class="kpi-card p-3 h-100">
+            <div class="kpi-title mb-2">Last Apiary Measurement</div>
+            <div class="kpi-value mb-1">
+                @(Model.LastApiaryTemp?.ToString("F2") ?? "—") <span class="kpi-sub">°C</span>
+            </div>
+            <div class="d-flex justify-content-between kpi-sub">
+                <span>Light: @(Model.LastApiaryLight?.ToString() ?? "—") lx</span>
+                <span>@(Model.LastApiaryMeasurementDate?.ToString("yyyy-MM-dd HH:mm") ?? "—")</span>
+            </div>
+        </div>
     </div>
-</form>
 
-<canvas id="hiveChart" width="800" height="400"></canvas>
+    <div class="col-12 col-md-4">
+        <div class="kpi-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="kpi-title">Last Inspection</div>
+                @if (Model.LastInspection != null)
+                {
+                    <span class="badge text-bg-success">Recorded</span>
+                }
+                else
+                {
+                    <span class="badge text-bg-secondary">None</span>
+                }
+            </div>
 
-<a asp-action="Export" asp-route-id="@Model.HiveId" class="btn btn-outline-info">
-    📤 Export last 90days measurements (CSV)
-</a>
+            @if (Model.LastInspection != null)
+            {
+                <div class="kpi-sub mt-2">
+                    <div><strong>Date:</strong> @Model.LastInspection.InspectionDate.ToString("yyyy-MM-dd HH:mm")</div>
+                    <div class="mt-2 d-flex flex-wrap gap-2">
+                        <span>👑 @(Model.LastInspection.QueenSeen == true ? "Yes" : Model.LastInspection.QueenSeen == false ? "No" : "—")</span>
+                        <span>🐣 @(Model.LastInspection.BroodPresent == true ? "Yes" : Model.LastInspection.BroodPresent == false ? "No" : "—")</span>
+                        <span>🥚 @(Model.LastInspection.EggsPresent == true ? "Yes" : Model.LastInspection.EggsPresent == false ? "No" : "—")</span>
+                        <span>🌾 @(Model.LastInspection.PollenPresent == true ? "Yes" : Model.LastInspection.PollenPresent == false ? "No" : "—")</span>
+                        <span>🍯 @(Model.LastInspection.HoneyPresent == true ? "Yes" : Model.LastInspection.HoneyPresent == false ? "No" : "—")</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.LastInspection.Notes))
+                    {
+                        <div class="mt-2"><strong>Note:</strong> @Model.LastInspection.Notes</div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="kpi-sub mt-2">No inspection yet.</div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Chart card -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div class="btn-group" role="group" aria-label="Range">
+                <a asp-action="Detail" asp-route-id="@Model.HiveId" asp-route-range="1D" asp-route-aggregationHours="@Model.CurrentAggregation" class="btn @RangeBtn("1D")">Today</a>
+                <a asp-action="Detail" asp-route-id="@Model.HiveId" asp-route-range="24h" asp-route-aggregationHours="@Model.CurrentAggregation" class="btn @RangeBtn("24h")">Last 24h</a>
+                <a asp-action="Detail" asp-route-id="@Model.HiveId" asp-route-range="7d" asp-route-aggregationHours="@Model.CurrentAggregation" class="btn @RangeBtn("7d")">Last 7 days</a>
+                <a asp-action="Detail" asp-route-id="@Model.HiveId" asp-route-range="14d" asp-route-aggregationHours="@Model.CurrentAggregation" class="btn @RangeBtn("14d")">Last 14 days</a>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <!-- Aggregation dropdown (auto submit) -->
+                <form method="get" asp-action="Detail" class="d-flex align-items-center gap-2 mb-0">
+                    <input type="hidden" name="id" value="@Model.HiveId" />
+                    <input type="hidden" name="range" value="@Model.CurrentRange" />
+                    <input type="hidden" name="smoothing" value="@Model.CurrentSmoothing" />
+                    <input type="hidden" name="showMilestones" value="@Model.ShowMilestones" />
+
+                    <label for="aggregationHours" class="form-label mb-0">Aggregation</label>
+                    <select class="form-select form-select-sm w-auto" name="aggregationHours" onchange="this.form.submit()">
+                        @foreach (var agg in aggregationOptions)
+                        {
+                            if (Model.CurrentAggregation == agg)
+                            {
+                                <option value="@agg" selected>@agg hour@(agg == 1 ? "" : "s")</option>
+                            }
+                            else
+                            {
+                                <option value="@agg">@agg hour@(agg == 1 ? "" : "s")</option>
+                            }
+                        }
+                    </select>
+                </form>
+
+                <!-- Toggles -->
+                <form id="smoothingForm" method="get" asp-action="Detail" class="d-flex align-items-center gap-3 mb-0">
+                    <input type="hidden" name="id" value="@Model.HiveId" />
+                    <input type="hidden" name="range" value="@Model.CurrentRange" />
+                    <input type="hidden" name="aggregationHours" value="@Model.CurrentAggregation" />
+                    <input type="hidden" id="smoothingValue" name="smoothing" value="@(Model.CurrentSmoothing.ToString().ToLower())" />
+                    <input type="hidden" id="milestonesValue" name="showMilestones" value="@(Model.ShowMilestones.ToString().ToLower())" />
+
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="smoothingToggle" @(Model.CurrentSmoothing ? "checked" : null) />
+                        <label class="form-check-label" for="smoothingToggle">Smooth</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="milestoneToggle" @(Model.ShowMilestones ? "checked" : null) />
+                        <label class="form-check-label" for="milestoneToggle">Milestones</label>
+                    </div>
+                </form>
+
+                <a asp-action="Export" asp-route-id="@Model.HiveId" class="btn btn-outline-info btn-sm">📄 Export CSV (90d)</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <canvas id="hiveChart" height="360"></canvas>
+    </div>
+</div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -116,15 +192,13 @@ else
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
 
     <script>
+        // přepínače -> submit
         document.getElementById("smoothingToggle").addEventListener("change", function () {
-            const isChecked = this.checked;
-            document.getElementById("smoothingValue").value = isChecked;
+            document.getElementById("smoothingValue").value = this.checked;
             document.getElementById("smoothingForm").submit();
         });
-
         document.getElementById("milestoneToggle").addEventListener("change", function () {
-            const isChecked = this.checked;
-            document.getElementById("milestonesValue").value = isChecked;
+            document.getElementById("milestonesValue").value = this.checked;
             document.getElementById("smoothingForm").submit();
         });
 
@@ -138,28 +212,25 @@ else
         const tensionValue = @(Model.CurrentSmoothing ? "0.4" : "0");
 
         const milestoneAnnotations = [
-            @foreach (var m in Model.Milestones)
-            {
-                    <text>
-                    {
-                        type: "line",
-                        scaleID: "x",
-                        value: "@m.Date.ToString("o")",
-                        borderColor: "orange",
-                        borderWidth: 2,
-                        label: {
-                            content: "@Html.Raw(BeeApp.Shared.Helpers.MilestoneHelper.GetIcon(m.Type))",
-                            enabled: true,
-                            position: "start",
-                            useHTML: true,
-                            tooltip: {
-                                enabled: true,
-                                content: "@m.Comment"
-                            }
-                        }
-                    },
-                    </text>
-            }
+        @foreach (var m in Model.Milestones)
+        {
+                <text>
+                {
+                    type: "line",
+                    scaleID: "x",
+                    value: "@m.Date.ToString("o")",
+                    borderColor: "orange",
+                    borderWidth: 2,
+                    label: {
+                        content: "@Html.Raw(BeeApp.Shared.Helpers.MilestoneHelper.GetIcon(m.Type))",
+                        enabled: true,
+                        position: "start",
+                        useHTML: true,
+                        tooltip: { enabled: true, content: "@m.Comment" }
+                    }
+                },
+                </text>
+        }
         ];
 
         const config = {
@@ -167,86 +238,27 @@ else
             data: {
                 labels: labels,
                 datasets: [
-                    {
-                        label: 'Weight (kg)',
-                        data: weightData,
-                        borderColor: 'blue',
-                        yAxisID: 'y',
-                        tension: tensionValue
-                    },
-                    {
-                        label: 'Hive Temperature (°C)',
-                        data: hiveTempData,
-                        borderColor: 'red',
-                        yAxisID: 'y1',
-                        tension: tensionValue
-                    },
-                    {
-                        label: 'Apiary Temperature (°C)',
-                        data: apiaryTempData,
-                        borderColor: 'green',
-                        borderDash: [5, 5],
-                        yAxisID: 'y1',
-                        tension: tensionValue
-                    }
+                    { label: 'Weight (kg)', data: weightData, yAxisID: 'y', tension: tensionValue },
+                    { label: 'Hive Temp (°C)', data: hiveTempData, yAxisID: 'y1', tension: tensionValue },
+                    { label: 'Apiary Temp (°C)', data: apiaryTempData, yAxisID: 'y1', tension: tensionValue, borderDash: [5,5] }
                 ]
             },
             options: {
                 responsive: true,
-                interaction: {
-                    mode: 'index',
-                    intersect: false
-                },
+                interaction: { mode: 'index', intersect: false },
                 stacked: false,
                 scales: {
                     x: {
                         type: 'time',
-                        time: {
-                            unit: 'hour',
-                            tooltipFormat: 'yyyy-MM-dd HH:mm',
-                            displayFormats: {
-                                hour: 'HH:mm'
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Date/Time'
-                        }
+                        time: { unit: 'hour', tooltipFormat: 'yyyy-MM-dd HH:mm', displayFormats: { hour: 'HH:mm' } },
+                        title: { display: true, text: 'Date/Time' }
                     },
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Weight (kg)'
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        grid: {
-                            drawOnChartArea: false
-                        },
-                        title: {
-                            display: true,
-                            text: 'Temperature (°C)'
-                        }
-                    }
+                    y:  { type: 'linear', display: true, position: 'left',  title: { display: true, text: 'Weight (kg)' } },
+                    y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Temperature (°C)' }, grid: { drawOnChartArea: false } }
                 },
                 plugins: {
-                    annotation: {
-                        annotations: milestoneAnnotations
-                    },
-                    tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: function(context) {
-                                return context.raw;
-                            }
-                        }
-                    }
+                    annotation: { annotations: milestoneAnnotations },
+                    tooltip: { enabled: true, callbacks: { label: (ctx) => ctx.raw } }
                 }
             }
         };

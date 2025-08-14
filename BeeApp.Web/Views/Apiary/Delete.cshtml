@@ -1,20 +1,98 @@
 ﻿@model BeeApp.Shared.Models.Apiary
 
-<h2>⚠️ Confirmation of delete apiary</h2>
-
-<p>Are you sure that you wanna delete apiary <strong>@Model.Name</strong>?</p>
-
-@if (Model.Hives.Any())
-{
-    <div class="alert alert-danger">
-        Cannot delete – contains hives!
-    </div>
+@{
+    ViewData["Title"] = "Delete Apiary";
+    var hasHives = Model?.Hives != null && Model.Hives.Any();
+    var hiveCount = hasHives ? Model.Hives.Count : 0;
 }
-else
-{
-    <form asp-action="DeleteConfirmed" method="post">
-        <input type="hidden" asp-for="ApiaryId" />
-        <button type="submit" class="btn btn-danger">Yes, delete</button>
-        <a asp-action="Index" class="btn btn-secondary">candel</a>
-    </form>
+
+<style>
+    .subtitle { color:#6c757d; font-size:.9rem; }
+    .card-clean { border:1px solid rgba(0,0,0,.08); border-radius:.75rem; box-shadow:0 2px 10px rgba(0,0,0,.04); }
+</style>
+
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-1">⚠️ Confirm delete</h2>
+        <div class="subtitle">This action cannot be undone.</div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-action="Index" class="btn btn-outline-primary">← Back to Apiaries</a>
+        <a asp-controller="Hive" asp-action="Index" asp-route-apiaryId="@Model.ApiaryId" class="btn btn-outline-secondary">🐝 View hives</a>
+    </div>
+</div>
+
+<div class="card card-clean">
+    <div class="card-body">
+        <dl class="row mb-3">
+            <dt class="col-sm-3">Apiary</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
+
+            <dt class="col-sm-3">Apiary ID</dt>
+            <dd class="col-sm-9">@Model.ApiaryId</dd>
+
+            <dt class="col-sm-3">Hives</dt>
+            <dd class="col-sm-9">@hiveCount</dd>
+        </dl>
+
+        @if (hasHives)
+        {
+            <div class="alert alert-danger">
+                Cannot delete this apiary — it still contains <strong>@hiveCount</strong> hive@(hiveCount == 1 ? "" : "s").
+                Please move or delete the hives first.
+            </div>
+
+            <div class="mb-3">
+                <div class="subtitle mb-1">Hives in this apiary (first 10):</div>
+                <ul class="mb-0">
+                    @foreach (var h in Model.Hives.Take(10))
+                    {
+                        <li>@h.Name (ID: @h.HiveId)</li>
+                    }
+                    @if (hiveCount > 10)
+                    {
+                        <li>… and @(hiveCount - 10) more</li>
+                    }
+                </ul>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a asp-controller="Hive" asp-action="Index" asp-route-apiaryId="@Model.ApiaryId" class="btn btn-outline-secondary">Manage hives</a>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                Are you sure you want to permanently delete apiary <strong>@Model.Name</strong>?
+            </div>
+
+            <form asp-action="DeleteConfirmed" method="post" class="d-flex flex-column gap-3">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ApiaryId" />
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="confirmCheck" />
+                    <label class="form-check-label" for="confirmCheck">
+                        I understand that this will permanently remove this apiary.
+                    </label>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>Yes, delete</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Enable "Delete" only after explicit confirmation
+    document.getElementById('confirmCheck')?.addEventListener('change', function () {
+        const btn = document.getElementById('deleteBtn');
+        if (btn) btn.disabled = !this.checked;
+    });
+</script>
 }
