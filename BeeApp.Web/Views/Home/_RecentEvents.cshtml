@@ -1,0 +1,30 @@
+﻿@using BeeApp.Shared.ViewModels
+@model HomeDashboardViewModel
+
+<section>
+    <h3>Poslední události</h3>
+
+    @if (Model.RecentEvents != null && Model.RecentEvents.Any())
+    {
+        <ul class="list-unstyled">
+            @foreach (var e in Model.RecentEvents)
+            {
+                <li class="mb-2">
+                    <strong>@e.OccurredAt.ToString("dd.MM.yyyy")</strong> – @e.Kind @($"úlu #{e.HiveId}")
+                    @if (!string.IsNullOrWhiteSpace(e.Notes))
+                    {
+                        @(": " + e.Notes)
+                    }
+                    @if (!string.IsNullOrWhiteSpace(e.DetailUrl))
+                    {
+                        <a class="ms-2" href="@e.DetailUrl">Detail →</a>
+                    }
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <div class="text-muted">Zatím žádné události.</div>
+    }
+</section>

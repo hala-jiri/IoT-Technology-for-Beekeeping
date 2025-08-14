@@ -22,6 +22,8 @@ builder.Services.AddScoped<DataSeederService>();
 builder.Services.AddScoped<BackupService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IFeedingService, FeedingService>();
+builder.Services.AddScoped<IHomeDashboardService, HomeDashboardService>();
+
 
 var app = builder.Build();
 

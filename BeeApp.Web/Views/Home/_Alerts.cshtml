@@ -1,0 +1,27 @@
+﻿@using BeeApp.Shared.ViewModels
+@model HomeDashboardViewModel
+
+<section>
+    <h3>Notifikace</h3>
+
+    @if (Model.Alerts != null && Model.Alerts.Any())
+    {
+        <ul class="list-unstyled">
+            @foreach (var a in Model.Alerts)
+            {
+                <li class="mb-2">
+                    <span class="badge bg-@a.Severity">@a.Type</span>
+                    @a.Message
+                    @if (!string.IsNullOrWhiteSpace(a.ActionUrl))
+                    {
+                        <a class="ms-2" href="@a.ActionUrl">Detail →</a>
+                    }
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <div class="text-muted">Žádné aktuální upozornění.</div>
+    }
+</section>

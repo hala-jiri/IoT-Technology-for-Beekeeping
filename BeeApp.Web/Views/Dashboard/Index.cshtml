@@ -2,65 +2,103 @@
 
 @{
     ViewData["Title"] = "Overview Dashboard";
-    string readableRange = Model.First().CurrentRange switch
+
+    var currentRange = Model?.FirstOrDefault()?.CurrentRange ?? "24h";
+    var currentSmoothing = Model?.FirstOrDefault()?.CurrentSmoothing ?? true;
+
+    string readableRange = currentRange switch
     {
-        "4h" => "4",
-        "8h" => "8",
+        "4h"  => "4",
+        "8h"  => "8",
         "12h" => "12",
         "24h" => "24",
         _ => "24"
     };
 }
 
-<h2>Hive Overview – Last @readableRange Hours</h2>
+<style>
+    .dash-toolbar { border:1px solid rgba(0,0,0,.08); border-radius:.75rem; padding:.75rem 1rem; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.04); }
+    .hive-card { border:1px solid rgba(0,0,0,.08); border-radius:.75rem; }
+    .hive-card .card-body { padding:1rem; }
+    .subtitle { color:#6c757d; font-size:.9rem; }
+</style>
 
-<form method="get" asp-action="Index" class="mb-4">
-    <div class="row">
-        <div class="col-auto">
-            <label class="form-label">Time range:</label>
-            <select name="range" class="form-select" onchange="this.form.submit()">
-                <option value="4h" selected="@(Model.First().CurrentRange == "4h")">Last 4 hours</option>
-                <option value="8h" selected="@(Model.First().CurrentRange == "8h")">Last 8 hours</option>
-                <option value="12h" selected="@(Model.First().CurrentRange == "12h")">Last 12 hours</option>
-                <option value="24h" selected="@(Model.First().CurrentRange == "24h")">Last 24 hours</option>
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-1">Hive Overview – Last @readableRange hours</h2>
+        <div class="subtitle">Total hives: @Model?.Count</div>
+    </div>
+    <form method="get" asp-action="Index" class="dash-toolbar d-flex align-items-center gap-3 mb-0">
+        <div class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0">Time range</label>
+            <select name="range" class="form-select form-select-sm" onchange="this.form.submit()">
+                @if (currentRange == "4h")  { <option value="4h" selected>Last 4 hours</option> }  else { <option value="4h">Last 4 hours</option> }
+                @if (currentRange == "8h")  { <option value="8h" selected>Last 8 hours</option> }  else { <option value="8h">Last 8 hours</option> }
+                @if (currentRange == "12h") { <option value="12h" selected>Last 12 hours</option> } else { <option value="12h">Last 12 hours</option> }
+                @if (currentRange == "24h") { <option value="24h" selected>Last 24 hours</option> } else { <option value="24h">Last 24 hours</option> }
             </select>
         </div>
-        <div class="col-auto align-self-end">
-            <div class="form-check">
-                <input type="hidden" id="smoothingValue" name="smoothing" value="@(Model.First().CurrentSmoothing.ToString().ToLower())" />
-                <input class="form-check-input" type="checkbox" id="smoothingToggle"
-                       @(Model.First().CurrentSmoothing ? "checked" : "") />
-                <label class="form-check-label" for="smoothingToggle">Smooth lines</label>
-            </div>
-        </div>
-    </div>
-</form>
 
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    @for (int i = 0; i < Model.Count; i++)
-    {
-        var hive = Model[i];
-        <div class="col">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">@hive.HiveName</h5>
-                    <p class="card-subtitle text-muted mb-2">@hive.ApiaryName</p>
-                    <canvas id="chart-@hive.HiveId" height="200"></canvas>
-                    <a asp-controller="Hive" asp-action="Detail" asp-route-id="@hive.HiveId" class="btn btn-sm btn-outline-primary mt-3">
-                        🔍 View Detail
-                    </a>
-                </div>
-            </div>
+        <div class="form-check form-switch">
+            <input type="hidden" id="smoothingValue" name="smoothing" value="@(currentSmoothing.ToString().ToLower())" />
+            <input class="form-check-input" type="checkbox" id="smoothingToggle" @(currentSmoothing ? "checked" : null) />
+            <label class="form-check-label" for="smoothingToggle">Smooth lines</label>
         </div>
-    }
+    </form>
 </div>
 
-@* 
-    Code under was generated, NOT MY CODE!
- *@
- @section Scripts {
+@if (Model == null || Model.Count == 0)
+{
+    <div class="alert alert-info">No data found for the selected time range. Try a wider range or check if measurements exist.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var hive = Model[i];
+            <div class="col">
+                <div class="card hive-card shadow-sm h-100">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex align-items-baseline justify-content-between mb-1">
+                            <h5 class="card-title mb-0">@hive.HiveName</h5>
+                            <a asp-controller="Hive" asp-action="Detail" asp-route-id="@hive.HiveId" class="btn btn-sm btn-outline-primary">
+                                🔍 Detail
+                            </a>
+                        </div>
+                        <div class="subtitle mb-2">@hive.ApiaryName</div>
+
+                        <div class="flex-grow-1">
+                            <canvas id="chart-@hive.HiveId" height="200"></canvas>
+                        </div>
+
+                        @* Volitelný mini-foot: poslední bod *@
+                        @{
+                            var last = hive.DataPoints?.LastOrDefault();
+                            if (last != null)
+                            {
+                                <div class="mt-2 subtitle">
+                                    Last: @last.Timestamp.ToString("yyyy-MM-dd HH:mm") · Weight: @last.Weight?.ToString("F2") kg · Temp: @last.Temperature?.ToString("F1") °C
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
+        // smoothing toggle -> submit
+        document.getElementById("smoothingToggle")?.addEventListener("change", function () {
+            document.getElementById("smoothingValue").value = this.checked;
+            this.form.submit();
+        });
+
         document.addEventListener("DOMContentLoaded", function () {
             const hives = @Html.Raw(Json.Serialize(Model.Select(h => new {
                 id = h.HiveId,
@@ -71,7 +109,10 @@
             })));
 
             hives.forEach(hive => {
-                const ctx = document.getElementById("chart-" + hive.id).getContext("2d");
+                const el = document.getElementById("chart-" + hive.id);
+                if (!el) return;
+
+                const ctx = el.getContext("2d");
                 const tension = hive.smoothing ? 0.4 : 0;
 
                 new Chart(ctx, {
@@ -82,14 +123,12 @@
                             {
                                 label: "Temperature (°C)",
                                 data: hive.temp,
-                                borderColor: "red",
                                 yAxisID: "y1",
                                 tension: tension
                             },
                             {
                                 label: "Weight (kg)",
                                 data: hive.weight,
-                                borderColor: "blue",
                                 yAxisID: "y",
                                 tension: tension
                             }
@@ -97,50 +136,15 @@
                     },
                     options: {
                         responsive: true,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        interaction: {
-                            mode: 'index',
-                            intersect: false
-                        },
+                        plugins: { legend: { display: false } },
+                        interaction: { mode: 'index', intersect: false },
                         scales: {
-                            y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                title: {
-                                    display: true,
-                                    text: 'Weight (kg)'
-                                }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                grid: {
-                                    drawOnChartArea: false
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Temperature (°C)'
-                                }
-                            }
+                            y:  { type: 'linear', display: true, position: 'left',  title: { display: true, text: 'Weight (kg)' } },
+                            y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Temperature (°C)' } }
                         }
                     }
                 });
             });
         });
     </script>
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const smoothingToggle = document.getElementById("smoothingToggle");
-        const smoothingValue = document.getElementById("smoothingValue");
-
-        smoothingToggle.addEventListener("change", function () {
-            smoothingValue.value = this.checked;
-            this.form.submit();
-        });
-    });
-</script>
 }

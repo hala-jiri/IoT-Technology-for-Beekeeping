@@ -1,4 +1,6 @@
+﻿using BeeApp.Shared.ViewModels;
 using BeeApp.Web.Models;
+using BeeApp.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -6,27 +8,31 @@ namespace BeeApp.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IHomeDashboardService _dashboard;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IHomeDashboardService dashboard)
         {
-            _logger = logger;
+            _dashboard = dashboard;
         }
 
-        public IActionResult Index()
+        // GET: /Home/Index
+        public async Task<IActionResult> Index()
         {
-            return View();
+            HomeDashboardViewModel vm = await _dashboard.GetAsync();
+
+            // Pokud jsou data nedostupná, zobrazíme hlášku na stránce (necháme i ve view)
+            if (!vm.DataAvailable && !string.IsNullOrWhiteSpace(vm.SystemMessage))
+            {
+                TempData["DashboardWarning"] = vm.SystemMessage;
+            }
+
+            return View(vm);
         }
 
+        // Volitelně: Privacy (ať ti funguje link v layoutu)
         public IActionResult Privacy()
         {
             return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

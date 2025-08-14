@@ -32,41 +32,44 @@ namespace BeeApp.Web.Controllers
                 "24h" => 2,
                 "12h" => 1,
                 "8h" => 1,
-                "4h" => 0, // žádná agregace
+                "4h" => 0,
                 _ => 2
             };
 
             var hives = await _context.Hives
+                .AsNoTracking()
                 .Include(h => h.Apiary)
                 .Include(h => h.Measurements.Where(m => m.MeasurementDate >= from))
                 .ToListAsync();
 
             var viewModel = hives
-                .Where(h => h.Measurements.Any())
                 .Select(h => new HiveMiniChartViewModel
                 {
                     HiveId = h.HiveId,
                     HiveName = h.Name,
                     ApiaryName = h.Apiary?.Name ?? "(unknown)",
-                    DataPoints = aggregationHours == 0
-                        ? h.Measurements.OrderBy(m => m.MeasurementDate)
-                            .Select(m => new HiveMiniPoint
-                            {
-                                Timestamp = m.MeasurementDate,
-                                Temperature = m.Temperature,
-                                Weight = m.Weight
-                            }).ToList()
-                        : h.Measurements
-                            .GroupBy(m => new DateTime(m.MeasurementDate.Year, m.MeasurementDate.Month, m.MeasurementDate.Day, m.MeasurementDate.Hour / aggregationHours * aggregationHours, 0, 0))
-                            .Select(g => new HiveMiniPoint
-                            {
-                                Timestamp = g.Key,
-                                Temperature = g.Average(x => x.Temperature),
-                                Weight = g.Average(x => x.Weight)
-                            })
-                            .OrderBy(p => p.Timestamp)
-                            .ToList(),
-
+                    DataPoints = (h.Measurements?.Any() ?? false)
+                        ? (aggregationHours == 0
+                            ? h.Measurements.OrderBy(m => m.MeasurementDate)
+                                .Select(m => new HiveMiniPoint
+                                {
+                                    Timestamp = m.MeasurementDate,
+                                    Temperature = m.Temperature,
+                                    Weight = m.Weight
+                                }).ToList()
+                            : h.Measurements
+                                .GroupBy(m => new DateTime(m.MeasurementDate.Year, m.MeasurementDate.Month, m.MeasurementDate.Day,
+                                                            m.MeasurementDate.Hour / aggregationHours * aggregationHours, 0, 0))
+                                .Select(g => new HiveMiniPoint
+                                {
+                                    Timestamp = g.Key,
+                                    Temperature = g.Average(x => x.Temperature),
+                                    Weight = g.Average(x => x.Weight)
+                                })
+                                .OrderBy(p => p.Timestamp)
+                                .ToList()
+                          )
+                        : new List<HiveMiniPoint>(),
                     CurrentRange = range,
                     CurrentSmoothing = isSmoothing
                 })

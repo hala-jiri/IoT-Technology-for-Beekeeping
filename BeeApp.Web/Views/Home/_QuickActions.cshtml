@@ -1,0 +1,23 @@
+﻿@using BeeApp.Shared.ViewModels
+@model HomeDashboardViewModel
+
+<section>
+    <h3>Akce</h3>
+    <div class="row g-2">
+        @if (Model.QuickActions != null && Model.QuickActions.Any())
+        {
+            @foreach (var a in Model.QuickActions)
+            {
+                <div class="col-6 col-md-4">
+                    <a href="@a.ActionUrl" class="btn w-100 @(a.Highlight ? "btn-warning" : "btn-outline-secondary")">
+                        @a.Icon @a.Label
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-muted">Žádné akce k dispozici.</div>
+        }
+    </div>
+</section>

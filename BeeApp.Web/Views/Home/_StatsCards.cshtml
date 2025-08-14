@@ -1,0 +1,28 @@
+﻿@using BeeApp.Shared.ViewModels
+@model HomeDashboardViewModel
+
+<div class="row g-2">
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card p-3">Apiaries: <strong>@Model.Stats.ApiaryCount</strong></div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card p-3">
+            Úly:
+            <span class="text-nowrap">
+                <strong>@Model.Stats.ActiveHiveCount</strong>/<span class="text-muted">@Model.Stats.HiveCount</span>
+            </span>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card p-3">Inspection (30d): <strong>@Model.Stats.InspectionsLast30d</strong></div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card p-3">Feeding (month): <strong>@Model.Stats.FeedingsThisMonth</strong></div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card p-3">Δ weight (7d): <strong>@(Model.Stats.AvgWeightChange7dKg?.ToString("0.0") ?? "—")</strong> kg</div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card p-3">Alerts: <strong>@Model.Stats.AlertCount</strong></div>
+    </div>
+</div>
