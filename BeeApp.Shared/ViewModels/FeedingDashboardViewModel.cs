@@ -16,7 +16,7 @@ namespace BeeApp.Shared.ViewModels
 
         public List<HiveFeedingSummaryDto> Hives { get; set; } = new();
 
-        public decimal TotalSyrupLiters => Hives.Sum(h => h.TotalSyrupLiters);
-        public decimal TotalPattyGrams => Hives.Sum(h => h.TotalPattyGrams);
+        public decimal TotalSyrupLiters => Hives.Sum(h => h.TotalSyrupLiters) ?? 0m;
+        public decimal TotalPattyGrams => Hives.Sum(h => h.TotalPattyGrams) ?? 0m;
     }
 }

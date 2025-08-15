@@ -12,8 +12,8 @@ namespace BeeApp.Shared.DTO
         public string HiveName { get; set; } = "";
         public bool Started { get; set; }                 // true, pokud existuje aspoň 1 FeedingEvent
 
-        public decimal TotalSyrupLiters { get; set; }     // suma jen Syrup+Liter
-        public decimal TotalPattyGrams { get; set; }      // suma jen Patty+Gram
+        public decimal? TotalSyrupLiters { get; set; }     // suma jen Syrup+Liter
+        public decimal? TotalPattyGrams { get; set; }      // suma jen Patty+Gram
         // z plánu (může být null)
         public decimal? TargetSyrupLiters { get; set; }
         public decimal? TargetPattyGrams { get; set; }

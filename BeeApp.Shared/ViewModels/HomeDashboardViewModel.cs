@@ -24,6 +24,11 @@ namespace BeeApp.Shared.ViewModels
         public int ActiveHiveCount { get; set; }
         public int InspectionsLast30d { get; set; }
         public int FeedingsThisMonth { get; set; }
+
+        public double FeedingRemainingKg { get; set; }
+        public double FeedingRemainingLiters { get; set; }
+        public string FeedingRemainDisplay => $"{FeedingRemainingLiters:F1} L / {FeedingRemainingKg:F1} kg cukru";
+        
         public double? AvgWeightChange7dKg { get; set; }     // může být null
         public int AlertCount { get; set; }
     }

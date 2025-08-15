@@ -1,8 +1,11 @@
 ﻿using BeeApp.Shared.Data;
+using BeeApp.Shared.DTO;
 using BeeApp.Shared.ViewModels;
 using BeeApp.Web.Data;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace BeeApp.Web.Services
 {
@@ -10,11 +13,13 @@ namespace BeeApp.Web.Services
     {
         private readonly AppDbContext _context;
         private readonly ILogger<HomeDashboardService> _logger;
+        private readonly IFeedingService _feedingService;
 
-        public HomeDashboardService(AppDbContext context, ILogger<HomeDashboardService> logger)
+        public HomeDashboardService(AppDbContext context, ILogger<HomeDashboardService> logger, IFeedingService feedingService)
         {
             _context = context;
             _logger = logger;
+            _feedingService = feedingService;
         }
 
         public async Task<HomeDashboardViewModel> GetAsync()
@@ -34,12 +39,43 @@ namespace BeeApp.Web.Services
                 vm.Stats.InspectionsLast30d = await _context.InspectionReports.CountAsync(i => i.InspectionDate >= d30);
                 vm.Stats.FeedingsThisMonth = await _context.FeedingEvents.CountAsync(f => f.Date >= monthStart);
 
+
+                // Stats about feeding
+                decimal feedingRemainingL = 0m;
+                decimal feedingRemainingKg = 0m;
+                var hiveIds = await _context.Hives.Select(h => h.HiveId).ToListAsync();
+                try
+                {
+                    int seasonYear = DateTime.Today.Year;
+                    foreach (var id in hiveIds)
+                    {
+                        var s = await _feedingService.GetHiveSummaryAsync(id, seasonYear)
+                                    ?? new HiveFeedingSummaryDto();
+
+                        var remainLiters = (decimal)((s.TargetSyrupLiters ?? 0m) - (s.TotalSyrupLiters ?? 0m));
+                        var remainPattyKg = ((decimal)((s.TargetPattyGrams ?? 0m) - (s.TotalPattyGrams ?? 0m))) / 1000m;
+
+                        if (remainLiters > 0) feedingRemainingL += remainLiters;
+                        if (remainPattyKg > 0) feedingRemainingKg += remainPattyKg;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Feeding remain calculation failed – continuing with zeros.");
+                    feedingRemainingL = 0m;
+                    feedingRemainingKg = 0m;
+                }
+
+                // ulož do Stats
+                vm.Stats.FeedingRemainingLiters = (double)Math.Round(feedingRemainingL, 1);
+                vm.Stats.FeedingRemainingKg = (double)Math.Round(feedingRemainingKg, 1);
+
                 // Volitelná průměrná změna váhy za 7 dní – jednoduchá verze (když nejsou data, zůstane null)
                 var d7 = DateTime.Today.AddDays(-7);
                 if (await _context.HiveMeasurements.AnyAsync())
                 {
                     // průměr (poslední váha - váha před 7 dny) napříč úly
-                    var hiveIds = await _context.Hives.Select(h => h.HiveId).ToListAsync();
+                    //var hiveIds = await _context.Hives.Select(h => h.HiveId).ToListAsync();
                     double total = 0; int cnt = 0;
                     foreach (var id in hiveIds)
                     {
