@@ -30,6 +30,16 @@
         color: #6c757d;
         font-size: .85rem;
     }
+
+    /* --- graf --- */
+    .chart-wrap {
+        height: clamp(240px, 50vh, 600px); /* bezpečně nižší výška */
+    }
+
+    #hiveChart {
+        width: 100% !important;
+        height: 100% !important;
+    }
 </style>
 
 <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
@@ -182,7 +192,9 @@
     </div>
 
     <div class="card-body">
-        <canvas id="hiveChart" height="360"></canvas>
+        <div class="chart-wrap">
+            <canvas id="hiveChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -246,6 +258,7 @@
             options: {
                 responsive: true,
                 interaction: { mode: 'index', intersect: false },
+                maintainAspectRatio: false,     // respect size / height of the parent
                 stacked: false,
                 scales: {
                     x: {
